@@ -84,7 +84,7 @@ export class ApproximaClient {
     const msg = await telegramBot.sendMessage(
       this.userId,
       text,
-      { ...{ parse_mode: 'Markdown' }, ...options }
+      options
     );
     if (selfDestruct) {
       setTimeout(() => {

@@ -5,6 +5,7 @@ Chatbot de Telegram que será desenvolvido como MVP (Minimum Valueable Product) 
 ## Depois de clonar o reposotorio
 
 Rode o comando `npm i` para instalar as libs necessárias.
+Copie o `.env.template` e renomear para `.env` e colocar as passar as variaveis de ambiente
 
 ## Lista de comandos (@approxima_bot)
 

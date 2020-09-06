@@ -2,7 +2,7 @@ import { ApproximaClient } from '../services/telegram-bot';
 
 const commandsAndStates = {
   help: [],
-  prefs: ['CHOOSING', 'SUBMIT']
+  prefs: ['CHOOSING']
 } as const;
 
 export const commands = Object.keys(commandsAndStates).map(_command => _command.toLowerCase());
@@ -16,10 +16,10 @@ type StateResolverFunctionReturn<T extends Command> =
   StatesOf<T> | 'END'
 
 export type InitialFunctionResolver<T extends Command> =
-  (client: ApproximaClient, arg?: string) => StateResolverFunctionReturn<T>
+  (client: ApproximaClient, arg?: string, originalArg?: string) => StateResolverFunctionReturn<T>
 
 export type StateResolverFunction<T extends Command> =
-  (client: ApproximaClient, arg: string) => StateResolverFunctionReturn<T>
+  (client: ApproximaClient, arg: string, originalArg: string) => StateResolverFunctionReturn<T>
 
 type CommandStateResolverMapper<T extends Command> = {
   [state in StatesOf<T> | 'INITIAL']: state extends 'INITIAL' ?

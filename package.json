@@ -5,7 +5,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/USPCodeLabSanca/approxima-chatbot"
+    "url": "https://github.com/USPCodeLabSanca/approxima-chatbot-node"
   },
   "scripts": {
     "start": "tsc && node -r dotenv/config dist/index.js",

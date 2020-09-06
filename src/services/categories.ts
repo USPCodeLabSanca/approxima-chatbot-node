@@ -1,4 +1,12 @@
-export const categories = {
+export interface ICategories {
+  [category: string]: [number, ISubCategory | undefined]
+}
+
+interface ISubCategory {
+  [category: string]: [number]
+}
+
+export const categories: ICategories = {
   'Anime e Mangá': [
     0,
     {}
