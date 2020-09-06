@@ -1,8 +1,10 @@
 import { ICommandExecuter } from '../models/command';
 import {
-  helpCommand
+  helpCommand,
+  prefsCommand
 } from './resolver';
 
 export const commandExecuter: ICommandExecuter = {
-  help: helpCommand
+  help: helpCommand,
+  prefs: prefsCommand,
 };

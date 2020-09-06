@@ -4,7 +4,7 @@ import {
   Command,
 } from '../models/command';
 import { runCommand } from '../command/run-command';
-import { ApproximaBot } from './telegram-bot';
+import { ApproximaClient } from './telegram-bot';
 
 const botName = 'approxima_bot';
 
@@ -12,7 +12,7 @@ const emptyCommandRegex = new RegExp(`^/?(${commands.join('|')})(?:@${botName})?
 const commandWithArgRegex = new RegExp(`^/?(${commands.join('|')})(?:@${botName})? +(.*)$`, 'i');
 const cleanMessageRegex = new RegExp(`^/?([^@]*@?)(?:@${botName})? *$`, 'i');
 
-export const onText = async (bot: ApproximaBot, msg: TelegramBot.Message): Promise<void> => {
+export const onText = async (client: ApproximaClient, msg: TelegramBot.Message): Promise<void> => {
   const msgText = msg.text;
   const fromId = msg.from!.id;
 
@@ -31,7 +31,7 @@ export const onText = async (bot: ApproximaBot, msg: TelegramBot.Message): Promi
 
   const cleanMsgText = cleanMessageRegex.exec(msgText)![1];
 
-  const state = bot.getCurrentState();
+  const state = client.getCurrentState();
 
   if (cleanMsgText === '.') {
     state.context = {};
@@ -44,20 +44,20 @@ export const onText = async (bot: ApproximaBot, msg: TelegramBot.Message): Promi
   const commandWithArgExec = commandWithArgRegex.exec(msgText);
 
   if (state.currentCommand !== '' && state.currentState !== '') {
-    runCommand(bot, state.currentCommand, cleanMsgText);
+    runCommand(client, state.currentCommand, cleanMsgText);
   }
   else if (emptyCommandExec) {
     const command = emptyCommandExec[1] as Command;
-    runCommand(bot, command);
+    runCommand(client, command);
   }
   else if (commandWithArgExec) {
     const command = commandWithArgExec[1] as Command;
     const arg = commandWithArgExec[2];
-    runCommand(bot, command, arg);
+    runCommand(client, command, arg);
   }
   else {
     // Command not found
-    bot.sendMessage(`Comando \`${cleanMsgText}\` não encontrado`);
+    client.sendMessage(`Comando \`${cleanMsgText}\` não encontrado`);
   }
 
 };

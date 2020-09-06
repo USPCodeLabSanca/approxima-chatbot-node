@@ -1,19 +1,19 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { runCommand } from '../command/run-command';
-import { ApproximaBot } from './telegram-bot';
+import { ApproximaClient } from './telegram-bot';
 
 export const onCallbackQuery = async (
-  bot: ApproximaBot,
+  client: ApproximaClient,
   msg: TelegramBot.CallbackQuery
 ): Promise<void> => {
   const callBackData = msg.data;
 
-  const state = bot.getCurrentState();
+  const state = client.getCurrentState();
 
   if (state.currentCommand === '') {
     return;
   }
 
-  runCommand(bot, state.currentCommand, callBackData);
+  runCommand(client, state.currentCommand, callBackData);
 
 };

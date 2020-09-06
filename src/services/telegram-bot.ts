@@ -6,10 +6,12 @@ import { stateMachine } from '../command/command-state-machine';
 import { onCallbackQuery } from './on-callback-query';
 import { IDb } from '../models/db';
 import { UserController } from '../controllers/user';
+import { Db } from 'mongodb';
+import { getDb } from './db';
 
 
 const isProd = process.env.NODE_ENV === 'production';
-const PORT = +process.env.PORT! || 3000;
+const PORT = Number(process.env.PORT!) || 3000;
 
 const botToken = process.env.BOT_TOKEN!;
 
@@ -23,48 +25,53 @@ else {
   telegramBot = new TelegramBot(botToken, { polling: true });
 }
 
-telegramBot.on('text', async (msg) => {
+(async () => {
 
-  if (!msg.from) {
-    return;
-  }
+  const db = await getDb();
 
-  const bot = new ApproximaBot(msg, msg.message_id);
-  await onText(bot, msg);
-});
+  telegramBot.on('text', async (msg) => {
+    if (!msg.from) {
+      return;
+    }
 
-telegramBot.on('callback_query', async (msg) => {
+    const client = new ApproximaClient(db, msg, msg.message_id);
+    await onText(client, msg);
+  });
 
-  if (!msg.message) {
-    console.error('No message in callback query');
-    return;
-  }
+  telegramBot.on('callback_query', async (msg) => {
 
-  const bot = new ApproximaBot(msg, msg.message.message_id);
-  await onCallbackQuery(bot, msg);
-});
+    if (!msg.message) {
+      console.error('No message in callback query');
+      return;
+    }
 
-console.log('Approxima bot started running');
+    const client = new ApproximaClient(db, msg, msg.message.message_id);
+    await onCallbackQuery(client, msg);
+  });
 
-export class ApproximaBot {
+  console.log('Approxima bot started running');
+})();
+
+export class ApproximaClient {
 
   private messageId: number | undefined;
 
   public userId: number;
   public name: string;
-  public arroba: string | undefined;
+  public username: string | undefined;
   public db: IDb;
 
   constructor(
+    db: Db,
     msg: TelegramBot.Message | TelegramBot.CallbackQuery,
     messageId?: number
   ) {
     this.userId = msg.from!.id;
     this.name = msg.from!.first_name;
-    this.arroba = msg.from!.username;
+    this.username = msg.from!.username;
     this.messageId = messageId;
     this.db = {
-      user: new UserController()
+      user: new UserController(db)
     };
   }
 
@@ -108,5 +115,4 @@ export class ApproximaBot {
   getCurrentContext = <T = any>() => {
     return stateMachine.getState<T>(this.userId).context;
   }
-
 }

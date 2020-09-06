@@ -1,24 +1,23 @@
 import { IUser } from '../models/user';
-import { Collection } from 'mongodb';
-import { getDb } from '../services/db';
+import { Collection, Db } from 'mongodb';
 import { isProd } from '../helpers';
 
 
 export class UserController {
 
-  private userCollection: Collection<IUser>;
+  private usersCollection: Collection<IUser>;
 
-  constructor() {
+  constructor(db: Db) {
     const collectionName = isProd ? 'production-users' : 'users';
-    this.userCollection = getDb().collection(collectionName);
+    this.usersCollection = db.collection(collectionName);
   }
 
   getAll = async (): Promise<IUser[]> => {
-    return this.userCollection.find().toArray();
+    return this.usersCollection.find().toArray();
   }
 
   get = async (userId: number): Promise<IUser | undefined | null> => {
-    return this.userCollection.findOne({ _id: userId });
+    return this.usersCollection.findOne({ _id: userId });
   }
 
   create = async (newUser: IUser) => {
@@ -27,7 +26,7 @@ export class UserController {
       console.error('User already exists');
       return;
     }
-    return this.userCollection.insertOne(newUser);
+    return this.usersCollection.insertOne(newUser);
   }
 
   edit = async (userId: number, user: Partial<IUser>) => {
@@ -36,6 +35,6 @@ export class UserController {
       console.error('User does not exist');
       return;
     }
-    return this.userCollection.updateOne({ _id: userId }, { $set: user });
+    return this.usersCollection.updateOne({ _id: userId }, { $set: user });
   }
 }

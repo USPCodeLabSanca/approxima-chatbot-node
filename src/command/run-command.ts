@@ -1,13 +1,13 @@
-import { normaliseString } from '../helpers/string';
+import { normalizeString } from '../helpers/string';
 import { Command, StateResolverFunction } from '../models/command';
-import { ApproximaBot } from '../services/telegram-bot';
+import { ApproximaClient } from '../services/telegram-bot';
 import { commandExecuter } from './command-execute';
 
 export const runCommand = async (
-  bot: ApproximaBot, command: Command, arg?: string
+  client: ApproximaClient, command: Command, arg?: string
 ) => {
 
-  const state = bot.getCurrentState();
+  const state = client.getCurrentState();
   let stateResolver: StateResolverFunction<Command>;
 
 
@@ -20,7 +20,7 @@ export const runCommand = async (
     stateResolver = await commandExecuter[command][state.currentState];
   }
 
-  const nextState = await stateResolver(bot, normaliseString(arg));
+  const nextState = await stateResolver(client, normalizeString(arg));
 
   if (nextState === 'END') {
     state.currentState = 'INITIAL';

@@ -1,20 +1,22 @@
-import MongoDb from 'mongodb';
+import { Db, MongoClient } from 'mongodb';
 
 // Connection URL
 const url = process.env.CONNECTION_STRING!;
 
-// Database Name
-const dbName = process.env.DATABASE_NAME!;
-
-let db: MongoDb.Db;
+let db: Db;
 
 // Use connect method to connect to the server
-MongoDb.MongoClient.connect(url, { useUnifiedTopology: true }).then(client => {
-  console.log('Connected successfully to mongoDb');
-  db = client.db(dbName);
+const dbPromise = MongoClient.connect(url, { useUnifiedTopology: true }).then(client => {
+  console.log('Connected successfully to MongoDB');
+  db = client.db();
+  return db;
 }).catch(() => {
-  throw new Error('Erro ao se conectar com o banco');
+  throw new Error('Failed to connect to MongoDB.');
 });
 
-
-export const getDb = () => db;
+export const getDb = async () => {
+  if (!db) {
+    return dbPromise;
+  }
+  return db;
+};
