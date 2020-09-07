@@ -52,6 +52,13 @@ else {
   console.log('Approxima bot started running');
 })();
 
+interface IOtherClientOptions {
+  /** The message will self destruct (dissapear) after `selfDestruct milliseconds` */
+  selfDestruct?: number;
+  /** User this id to send the message to other chat/user */
+  chatId?: number
+}
+
 export class ApproximaClient {
 
   private messageId: number | undefined;
@@ -77,19 +84,19 @@ export class ApproximaClient {
 
   sendMessage = async (
     text: string,
-    options?: TelegramBot.SendMessageOptions,
-    selfDestruct?: number
+    telegrmsOptions?: TelegramBot.SendMessageOptions,
+    otherOptions?: IOtherClientOptions
   ) => {
-    options = options ?? { reply_markup: { remove_keyboard: true } };
+    telegrmsOptions = telegrmsOptions ?? { reply_markup: { remove_keyboard: true } };
     const msg = await telegramBot.sendMessage(
-      this.userId,
+      otherOptions?.chatId || this.userId,
       text,
-      options
+      telegrmsOptions
     );
-    if (selfDestruct) {
+    if (otherOptions?.selfDestruct) {
       setTimeout(() => {
         this.deleteMessage(msg.message_id);
-      }, selfDestruct);
+      }, otherOptions.selfDestruct);
     }
     return msg;
   }

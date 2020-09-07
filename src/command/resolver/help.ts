@@ -15,7 +15,7 @@ export const helpCommand: InitialFunctionResolver<'help'> = async (
   '/desc --> Troca a sua descrição.\n\n' +
   '/help --> Mostra novamente essa lista. Alternativamente, você pode digitar / e a lista de comandos também aparecerá!\n\n\n' +
   'Caso tenha algum problema ou crítica/sugestão, chama um dos meus desenvolvedores (eles me disseram que não mordem) --> @vitorsanc @Lui_Tombo @arenasoy @Angra018 @OliveiraNelson';
-
-  client.sendMessage(helpText, { parse_mode: 'HTML' });
+  /* eslint-enable max-len */
+  client.sendMessage(helpText);
   return 'END' as const;
 };

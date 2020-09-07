@@ -1,11 +1,15 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { CommandStateResolver } from '../../models/command';
-import { categories } from '../../services/categories';
+import { categories } from '../../models/categories';
 
 interface IPrefsContext {
   subMenu: string;
   interests: string[];
 }
+
+const keyboardResponseText = 'Escolha suas categorias de interesse.\n' +
+    'Utilizaremos elas para te recomendar pessoas que tenham gostos parecidos com os seus.\n' +
+    'O que você marcar aqui NÃO SERÁ VISÍVEL para nenhum outro usuário além de você mesmo!\n';
 
 const buildKeyboard = (context: IPrefsContext) => {
   const keyboard: TelegramBot.InlineKeyboardButton[][] = [];
@@ -15,25 +19,25 @@ const buildKeyboard = (context: IPrefsContext) => {
     interests,
   } = context;
 
-  let categoriesToShow: {[category: string]: [number, any]};
+  let categoriesToShow: { [category: string]: { id: number } };
 
   if (!subMenu) {
     categoriesToShow = categories;
   }
   else {
     // Get the object which contains all sub-categories
-    categoriesToShow = categories[subMenu][1] as any as { [category: string]: [number, any] };
+    categoriesToShow = categories[subMenu].subCategories;
   }
 
   for (const category of Object.keys(categoriesToShow)) {
 
     let categoryId = '';
     if (subMenu) {
-      categoryId = String(categories[subMenu][0]) +
-        ',' + String(categoriesToShow[category][0]);
+      categoryId = String(categories[subMenu].id) +
+        ',' + String(categoriesToShow[category].id);
     }
     else {
-      categoryId = String(categoriesToShow[category][0]);
+      categoryId = String(categoriesToShow[category].id);
     }
 
     let categoryText = '';
@@ -41,8 +45,7 @@ const buildKeyboard = (context: IPrefsContext) => {
 
     if (
       !subMenu &&
-      typeof categories[category][1] === 'object' &&
-      Object.keys(categories[category][1] as object).length > 0
+      Object.keys(categories[category].subCategories).length > 0
     ) {
       categoryText = category + ' ⬊';
       callbackData = 'open' + category;
@@ -77,18 +80,12 @@ const buildKeyboard = (context: IPrefsContext) => {
 export const prefsCommand: CommandStateResolver<'prefs'> = {
   INITIAL: async (client) => {
 
-    /* eslint-disable max-len */
-    let responseText = 'Escolha suas categorias de interesse.\n';
-    responseText += 'Utilizaremos elas para te recomendar pessoas que tenham gostos parecidos com os seus.\n';
-    responseText += 'O que você marcar aqui NÃO SERÁ VISÍVEL para nenhum outro usuário além de você mesmo!\n';
-    /* eslint-enable max-len */
-
     const user = await client.db.user.get(client.userId);
     const context = client.getCurrentContext<IPrefsContext>();
-    context.interests = user!.interests;
+    context.interests = user.interests;
 
     const keyboard = buildKeyboard(context);
-    client.sendMessage(responseText, {
+    client.sendMessage(keyboardResponseText, {
       reply_markup: {
         inline_keyboard: keyboard
       }
@@ -126,14 +123,8 @@ export const prefsCommand: CommandStateResolver<'prefs'> = {
       return 'CHOOSING';
     }
 
-    /* eslint-disable max-len */
-    let responseText = 'Escolha suas categorias de interesse.\n';
-    responseText += 'Utilizaremos elas para te recomendar pessoas que tenham gostos parecidos com os seus.\n';
-    responseText += 'O que você marcar aqui NÃO SERÁ VISÍVEL para nenhum outro usuário além de você mesmo!\n';
-    /* eslint-enable max-len */
-
     const keyboard = buildKeyboard(context);
-    client.editMessage(responseText, {
+    client.editMessage(keyboardResponseText, {
       reply_markup: {
         inline_keyboard: keyboard
       }

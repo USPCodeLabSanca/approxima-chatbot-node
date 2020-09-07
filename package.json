@@ -2,7 +2,7 @@
   "name": "approxima-chatbot",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/USPCodeLabSanca/approxima-chatbot-node"
@@ -10,9 +10,9 @@
   "scripts": {
     "start": "tsc && node -r dotenv/config dist/index.js",
     "dev": "ts-node-dev -r dotenv/config src/index.ts",
-    "jupiter": "tsc && node -r dotenv/config dist/scripts/scrape.js",
     "lint": "eslint src/**",
     "lint-fix": "eslint src/** --fix",
+    "rank": "tsc && node dist/tasks/rank.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "CodeLab",

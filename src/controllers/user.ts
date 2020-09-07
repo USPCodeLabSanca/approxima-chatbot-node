@@ -16,8 +16,14 @@ export class UserController {
     return this.usersCollection.find().toArray();
   }
 
-  get = async (userId: number): Promise<IUser | undefined | null> => {
-    return this.usersCollection.findOne({ _id: userId });
+  get = async (userId: number): Promise<IUser> => {
+    const user = await this.usersCollection.findOne({ _id: userId });
+    if (!user) {
+      // TODO: fazer com que essa funcao seja chamada somente se o usuario existe
+      // TODO: fazer o setup inicial do usuario
+      throw Error('User should exsits');
+    }
+    return user;
   }
 
   create = async (newUser: IUser) => {
