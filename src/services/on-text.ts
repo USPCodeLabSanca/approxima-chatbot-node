@@ -57,7 +57,7 @@ export const onText = async (client: ApproximaClient, msg: TelegramBot.Message):
   }
   else {
     // Command not found
-    client.sendMessage(`Comando \`${cleanMsgText}\` não encontrado`);
+    client.sendMessage(`Comando \`${cleanMsgText}\` não encontrado`, { parse_mode: 'Markdown' });
   }
 
 };
