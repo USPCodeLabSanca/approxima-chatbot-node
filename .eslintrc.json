@@ -30,6 +30,7 @@
         "arrow-parens": "off",
         "object-curly-spacing": ["error", "always"],
         "require-jsdoc": "off",
+        "valid-jsdoc": "off",
         "operator-linebreak": ["error", "after"],
         "padded-blocks": "off",
         "no-invalid-this": 0 // TODO: estudar isso

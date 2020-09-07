@@ -1,6 +1,7 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { CommandStateResolver } from '../../models/command';
 import { categories } from '../../models/categories';
+import { removeByValue, includeElement } from '../../helpers/array';
 
 interface IPrefsContext {
   subMenu: string;
@@ -50,7 +51,7 @@ const buildKeyboard = (context: IPrefsContext) => {
       categoryText = category + ' ⬊';
       callbackData = 'open' + category;
     }
-    else if (interests.indexOf(categoryId) > -1) {
+    else if (includeElement(interests, categoryId)) {
       categoryText = '✅ ' + category;
       callbackData = 'toogle' + categoryId;
     }
@@ -107,9 +108,8 @@ export const prefsCommand: CommandStateResolver<'prefs'> = {
     }
     else if (arg.startsWith('toogle')) { // Arg is categoryId
       const categoryId = arg.substr(6);
-      const categoryIndex = context.interests.indexOf(categoryId);
-      if (categoryIndex > -1) {
-        context.interests.splice(categoryIndex, 1);
+      if (includeElement(context.interests, categoryId)) {
+        removeByValue(context.interests, categoryId);
       }
       else {
         context.interests.push(categoryId);
