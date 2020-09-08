@@ -4,11 +4,13 @@ import {
   prefsCommand,
   showCommand,
   pendingCommand,
-  randomCommand
+  randomCommand,
+  clearCommand
 } from './resolver';
 
 export const commandExecuter: ICommandExecuter = {
   help: helpCommand,
+  clear: clearCommand,
   pending: pendingCommand,
   show: showCommand,
   random: randomCommand,

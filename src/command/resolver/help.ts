@@ -1,7 +1,7 @@
 import { ApproximaClient } from '../../services/telegram-bot';
-import { InitialFunctionResolver } from '../../models/command';
+import { CommandStateResolver } from '../../models/command';
 
-export const helpCommand: InitialFunctionResolver<'help'> = async (
+export const helpCommand: CommandStateResolver<'help'> = async (
   client: ApproximaClient, _arg?: string
 ) => {
   /* eslint-disable max-len */

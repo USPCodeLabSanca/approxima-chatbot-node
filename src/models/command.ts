@@ -2,6 +2,7 @@ import { ApproximaClient } from '../services/telegram-bot';
 
 const commandsAndStates = {
   help: [],
+  clear: [],
   show: ['ANSWER'],
   random: ['ANSWER'],
   pending: ['ANSWER'],
