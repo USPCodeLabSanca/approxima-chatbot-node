@@ -93,7 +93,6 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
 
     // Register the new connection
     myData.connections.push(targetId);
-    myData.pending;
 
     // Update my info on BD
     client.db.user.edit(userId, { 'connections': myData.connections });
@@ -108,18 +107,19 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
 
     // Send messages confirming the action
 
-    const targetChat = targetData.chat_id;
+    const targetChat = targetData._id;
 
-    const textTarget = 'Uma pessoa acaba de aceitar seu pedido de conexão!' +
+    const textTarget = `${myData.username} acaba de aceitar seu pedido de conexão! ` +
       'Use o comando /friends para checar.';
 
-    client.sendMessage(textTarget, undefined, { chatId: targetChat });
+    console.log('targetChat', targetChat);
+    await client.sendMessage(textTarget, undefined, { chatId: targetChat });
 
-    const myText = 'Parabéns! Você acaba de ganhar uma nova conexão!' +
+    const myText = `Parabéns! Você acaba de se conectar com ${targetData.username}! ` +
       'Que tal dar um "oi" pra elu? :)\n' +
       'Use o comando /friends para ver a sua nova conexão! Ela estará no final da última página.';
 
-    client.sendMessage(myText);
+    await client.sendMessage(myText);
 
     return 'END';
   }

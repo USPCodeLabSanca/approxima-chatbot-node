@@ -4,6 +4,13 @@ export const includeElement = <T extends any>(array: T[], element: T) => {
 };
 
 /** Removes an element from the `array` and returns true if the elements exists */
+export const removeByIndex = (array: any[], index: number) => {
+  if (index >= 0) {
+    array.splice(index, 1);
+  }
+};
+
+/** Removes an element from the `array` and returns true if the elements exists */
 export const removeByValue = <T extends any>(array: T[], value: T): boolean => {
   const indexToRemove = array.indexOf(value);
   if (indexToRemove < 0) {

@@ -1,4 +1,5 @@
 export { helpCommand } from './help';
-export { prefsCommand } from './prefs';
-export { showCommand } from './show';
 export { pendingCommand } from './pending';
+export { prefsCommand } from './prefs';
+export { randomCommand } from './random';
+export { showCommand } from './show';
