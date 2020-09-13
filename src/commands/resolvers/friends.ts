@@ -15,7 +15,6 @@ const makeButtons = (curPage: number, final_page: number) => {
 
   const buttonPairs: any[] = [];
 
-  console.log('makeButtons -> final_page', final_page);
   // there is only one page, button are not neede
   if (final_page == 0) {
     return buttonPairs; // empty
@@ -207,18 +206,20 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
   CHOOSE_PAGE: (clients, arg) => {
 
     const context = clients.getCurrentContext<IFriendsContext>();
-
     if (arg === 'close') {
       clients.deleteMessage(context.friendsMessageId);
       // TODO: send message?
       return 'END';
     }
-    else if (typeof arg === 'string') {
-      // TODO: tratar esse caso
-      // return 'END';
-    }
 
     const currentPage = +arg;
+
+    if (isNaN(currentPage)) {
+      // TODO: tratar esse caso
+      clients.deleteMessage(context.friendsMessageId);
+      return 'END';
+    }
+
     const bottom_msg = 'Utilize esses botões para navegar entre as páginas:\n\n';
 
 
