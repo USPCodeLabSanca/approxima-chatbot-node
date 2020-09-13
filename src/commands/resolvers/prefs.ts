@@ -142,6 +142,6 @@ export const prefsCommand: CommandStateResolver<'prefs'> = {
         inline_keyboard: keyboard
       }
     });
-    return 'CHOOSING' as const;
+    return 'CHOOSING';
   }
 };

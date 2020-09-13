@@ -1,6 +1,6 @@
 import { Db } from 'mongodb';
 import { IUser } from '../../models/user';
-import { UserRepository } from '../repository/user';
+import { UserRepository } from '../repositories/user';
 
 export class UserController {
 

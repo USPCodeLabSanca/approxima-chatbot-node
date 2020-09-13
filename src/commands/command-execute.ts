@@ -4,6 +4,8 @@ import {
   helpCommand,
   pendingCommand,
   prefsCommand,
+  nameCommand,
+  bioCommand,
   randomCommand,
   showCommand
 } from './resolvers';
@@ -11,6 +13,8 @@ import {
 export const commandExecuter: CommandExecuter = {
   help: helpCommand,
   clear: clearCommand,
+  name: nameCommand,
+  bio: bioCommand,
   pending: pendingCommand,
   show: showCommand,
   random: randomCommand,

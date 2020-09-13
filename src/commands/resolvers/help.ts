@@ -1,7 +1,7 @@
 import { ApproximaClient } from '../../services/client';
 import { CommandStateResolver } from '../../models/commands';
 
-export const helpCommand: CommandStateResolver<'help'> = async (
+export const helpCommand: CommandStateResolver<'help'> = (
   client: ApproximaClient, _arg?: string
 ) => {
   /* eslint-disable max-len */
@@ -17,5 +17,5 @@ export const helpCommand: CommandStateResolver<'help'> = async (
     'Caso tenha algum problema ou crítica/sugestão, chama um dos meus desenvolvedores (eles me disseram que não mordem) --> @vitorsanc @Lui_Tombo @arenasoy @Angra018 @OliveiraNelson';
   /* eslint-enable max-len */
   client.sendMessage(helpText);
-  return 'END' as const;
+  return 'END';
 };

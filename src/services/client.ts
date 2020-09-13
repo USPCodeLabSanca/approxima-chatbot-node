@@ -1,7 +1,7 @@
 import { Db } from 'mongodb';
 import TelegramBot from 'node-telegram-bot-api';
 import { stateMachine } from '../commands/command-state-machine';
-import { UserController } from '../database/controller/user';
+import { UserController } from '../database/controllers/user';
 import { getTelegramBot } from './telegram-bot';
 
 const telegramBot = getTelegramBot();
