@@ -16,7 +16,7 @@ import { getTelegramBot } from './telegram-bot';
       return;
     }
 
-    const client = new ApproximaClient(db, msg, msg.message_id);
+    const client = new ApproximaClient(db, { message: msg });
     await onText(client, msg);
   });
 
@@ -27,7 +27,7 @@ import { getTelegramBot } from './telegram-bot';
       return;
     }
 
-    const client = new ApproximaClient(db, msg, msg.message.message_id);
+    const client = new ApproximaClient(db, { callbackMessage: msg });
     await onCallbackQuery(client, msg);
   });
 

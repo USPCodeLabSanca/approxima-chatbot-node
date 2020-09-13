@@ -6,7 +6,7 @@ import { ApproximaClient } from '../../services/client';
 interface IFriendsContext {
   user: IUser;
   pagesText: string[];
-  friendsMessageId: number;
+  currentPage: number;
 }
 
 const makeButtons = (curPage: number, final_page: number) => {
@@ -154,6 +154,7 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
     const userId = client.userId;
 
     context.user = await client.db.user.get(userId);
+    context.currentPage = 0;
 
     if (context.user.connections.length === 0) {
       // Este usuario ainda nao tem conexoes
@@ -192,7 +193,7 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
     }
 
 
-    const message = await client.sendMessage(response, {
+    client.sendMessage(response, {
       reply_markup: {
         inline_keyboard: [
           buttonPairs, [{ text: 'Fechar', callback_data: 'close' }]
@@ -200,26 +201,32 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
       }
     });
 
-    context.friendsMessageId = message.message_id;
     return 'CHOOSE_PAGE';
   },
   CHOOSE_PAGE: (clients, arg) => {
 
     const context = clients.getCurrentContext<IFriendsContext>();
     if (arg === 'close') {
-      clients.deleteMessage(context.friendsMessageId);
+      clients.deleteMessage();
       // TODO: send message?
       return 'END';
     }
 
     const currentPage = +arg;
+    console.log(currentPage, context.currentPage);
 
     if (isNaN(currentPage)) {
       // TODO: tratar esse caso
-      clients.deleteMessage(context.friendsMessageId);
+      clients.deleteMessage();
       return 'END';
     }
 
+    if (currentPage === context.currentPage) {
+      clients.answerCallbackQuery();
+      return 'CHOOSE_PAGE';
+    }
+
+    context.currentPage = currentPage;
     const bottom_msg = 'Utilize esses botões para navegar entre as páginas:\n\n';
 
 

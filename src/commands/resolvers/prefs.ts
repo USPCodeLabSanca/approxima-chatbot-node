@@ -6,7 +6,6 @@ import { categories } from '../../data/categories';
 interface IPrefsContext {
   subMenu: string;
   interests: string[];
-  keyboardId: number;
 }
 
 const keyboardResponseText = 'Escolha suas categorias de interesse.\n' +
@@ -90,13 +89,12 @@ export const prefsCommand: CommandStateResolver<'prefs'> = {
     context.interests = user.interests;
 
     const keyboard = buildKeyboard(context);
-    const message = await client.sendMessage(keyboardResponseText, {
+    client.sendMessage(keyboardResponseText, {
       reply_markup: {
         inline_keyboard: keyboard
       }
     });
 
-    context.keyboardId = message.message_id;
 
     return 'CHOOSING' as const;
   },
@@ -104,7 +102,7 @@ export const prefsCommand: CommandStateResolver<'prefs'> = {
     const context = client.getCurrentContext<IPrefsContext>();
     if (arg === 'finish') {
       await client.db.user.edit(client.userId, { interests: context.interests });
-      client.deleteMessage(context.keyboardId);
+      client.deleteMessage();
       client.sendMessage('Preferencias salvas!');
       return 'END';
     }
@@ -115,7 +113,7 @@ export const prefsCommand: CommandStateResolver<'prefs'> = {
       context.subMenu = '';
     }
     else if (arg === 'cancel') {
-      client.deleteMessage(context.keyboardId);
+      client.deleteMessage();
       client.sendMessage('Preferências não salvas');
       return 'END';
     }
