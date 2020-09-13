@@ -1,8 +1,7 @@
-import { CommandStateResolver } from '../../models/command';
+import { CommandStateResolver } from '../../models/commands';
 import { rank } from '../../services/ranker';
 import { InlineKeyboardButton } from 'node-telegram-bot-api';
-import { includeElement } from '../../helpers/array';
-import { answerState } from './answer-state';
+import { answerState } from './common/answer-state';
 import { IUser } from '../../models/user';
 
 interface IShowContext {
@@ -32,10 +31,10 @@ export const showCommand: CommandStateResolver<'show'> = {
     const allowedUsers = allUsers.filter(user => {
       const otherUserId = user._id;
       return otherUserId !== userId &&
-        !includeElement(context.user.pending, otherUserId) &&
-        !includeElement(context.user.invited, otherUserId) &&
-        !includeElement(context.user.connections, otherUserId) &&
-        !includeElement(context.user.rejects, otherUserId);
+        !context.user.pending.includes(otherUserId) &&
+        !context.user.invited.includes(otherUserId) &&
+        !context.user.connections.includes(otherUserId) &&
+        !context.user.rejects.includes(otherUserId);
     });
 
     if (allowedUsers.length === 0) {
@@ -46,10 +45,10 @@ export const showCommand: CommandStateResolver<'show'> = {
     }
 
     // Mapeia os usuarios aos seus interesses
-    const usersInterests: {[userId: number]: string[]} = {};
+    const usersInterests: { [userId: number]: string[] } = {};
     for (const user of allowedUsers) {
       const userData = await client.db.user.get(user._id);
-      if (!includeElement(userData['rejects'], userId)) {
+      if (!userData['rejects'].includes(userId)) {
         usersInterests[user._id] = userData.interests;
       }
 

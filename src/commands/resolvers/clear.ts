@@ -1,4 +1,4 @@
-import { CommandStateResolver } from '../../models/command';
+import { CommandStateResolver } from '../../models/commands';
 
 export const clearCommand: CommandStateResolver<'clear'> = async (client, _arg) => {
   /**

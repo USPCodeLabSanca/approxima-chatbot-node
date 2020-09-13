@@ -1,6 +1,6 @@
 import TelegramBot from 'node-telegram-bot-api';
-import { runCommand } from '../command/run-command';
-import { ApproximaClient } from './telegram-bot';
+import { runCommand } from '../commands/run-command';
+import { ApproximaClient } from '../services/client';
 
 export const onCallbackQuery = async (
   client: ApproximaClient,

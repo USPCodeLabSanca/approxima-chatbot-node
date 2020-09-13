@@ -1,4 +1,3 @@
-import { includeElement } from '../helpers/array';
 
 export const rank = (
   myInterests: string[], otherUsersIdInterests: { [userId: number]: string[] }, log = false
@@ -17,7 +16,7 @@ export const rank = (
 
     // For each of my interest, if the other user has it too, +1 score
     myInterests.forEach(myInterest => {
-      if (includeElement(theirInterests, myInterest)) {
+      if (theirInterests.includes(myInterest)) {
         theirScore++;
       }
     });

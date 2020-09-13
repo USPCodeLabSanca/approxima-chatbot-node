@@ -2,9 +2,9 @@ import TelegramBot from 'node-telegram-bot-api';
 import {
   commands,
   Command,
-} from '../models/command';
-import { runCommand } from '../command/run-command';
-import { ApproximaClient } from './telegram-bot';
+} from '../models/commands';
+import { runCommand } from '../commands/run-command';
+import { ApproximaClient } from '../services/client';
 
 const botName = 'approxima_bot';
 

@@ -1,11 +1,11 @@
-import { ApproximaClient } from '../../services/telegram-bot';
-import { IUser } from '../../models/user';
+import { ApproximaClient } from '../../../services/client';
+import { IUser } from '../../../models/user';
 
 export const answerState = async (
   client: ApproximaClient, arg: string
 ): Promise<'END' | 'ANSWER'> => {
 
-  const context = client.getCurrentContext<{lastShownId?: number, user: IUser}>();
+  const context = client.getCurrentContext<{ lastShownId?: number, user: IUser }>();
   const targetId = context.lastShownId;
 
   if (!targetId) {

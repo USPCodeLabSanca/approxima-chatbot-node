@@ -1,6 +1,6 @@
 import { cleanString } from '../helpers/string';
-import { Command, StateResolverFunction } from '../models/command';
-import { ApproximaClient } from '../services/telegram-bot';
+import { Command, StateResolverFunction } from '../models/commands';
+import { ApproximaClient } from '../services/client';
 import { commandExecuter } from './command-execute';
 
 export const runCommand = async (

@@ -1,8 +1,7 @@
 import { randomInt } from '../../helpers';
-import { includeElement } from '../../helpers/array';
-import { CommandStateResolver } from '../../models/command';
+import { CommandStateResolver } from '../../models/commands';
+import { answerState } from './common/answer-state';
 import { IUser } from '../../models/user';
-import { answerState } from './answer-state';
 
 interface IRandomContext {
   user: IUser;
@@ -28,16 +27,16 @@ export const randomCommand: CommandStateResolver<'random'> = {
     const myAllowedUsers = allUsers.filter(user => {
       const otherUserId = user._id;
       return otherUserId !== userId &&
-        !includeElement(context.user.pending, otherUserId) &&
-        !includeElement(context.user.invited, otherUserId) &&
-        !includeElement(context.user.connections, otherUserId) &&
-        !includeElement(context.user.rejects, otherUserId);
+        !context.user.pending.includes(otherUserId) &&
+        !context.user.invited.includes(otherUserId) &&
+        !context.user.connections.includes(otherUserId) &&
+        !context.user.rejects.includes(otherUserId);
     });
 
     // Preciso, ainda, tirar aqueles que me tem em sua lista de rejects
     const finalAllowedUsers = [];
     for (const user of myAllowedUsers) {
-      if (!includeElement(user.rejects, userId)) {
+      if (!user.rejects.includes(userId)) {
         finalAllowedUsers.push(user);
       }
     }

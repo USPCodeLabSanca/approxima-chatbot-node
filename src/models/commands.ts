@@ -1,25 +1,17 @@
-import { ApproximaClient } from '../services/telegram-bot';
-
-const commandsAndStates = {
-  help: [],
-  clear: [],
-  show: ['ANSWER'],
-  random: ['ANSWER'],
-  pending: ['ANSWER'],
-  prefs: ['CHOOSING']
-} as const;
+import { ApproximaClient } from '../services/client';
+import { commandsAndStates } from '../data/commands-and-states';
 
 export const commands = Object.keys(commandsAndStates).map(_command => _command.toLowerCase());
 
 export type Command = keyof typeof commandsAndStates;
 
-export type StatesOf<T extends Command> = typeof commandsAndStates[T][number];
+type StatesOf<T extends Command> = typeof commandsAndStates[T][number];
 
-type StateResolverFunctionReturn<T extends Command> =
+export type StateResolverFunctionReturn<T extends Command> =
   Promise<StatesOf<T> | 'END'> |
   StatesOf<T> | 'END'
 
-export type InitialFunctionResolver<T extends Command> =
+type InitialFunctionResolver<T extends Command> =
   (client: ApproximaClient, arg?: string, originalArg?: string) => StateResolverFunctionReturn<T>
 
 export type StateResolverFunction<T extends Command> =
@@ -27,14 +19,14 @@ export type StateResolverFunction<T extends Command> =
 
 type CommandStateResolverMapper<T extends Command> = {
   [state in StatesOf<T> | 'INITIAL']: state extends 'INITIAL' ?
-    InitialFunctionResolver<T> :
-    StateResolverFunction<T>
+  InitialFunctionResolver<T> :
+  StateResolverFunction<T>
 }
 
 export type CommandStateResolver<T extends Command> = StatesOf<T> extends never ?
   CommandStateResolverMapper<T> | InitialFunctionResolver<T> :
   CommandStateResolverMapper<T>
 
-export type ICommandExecuter = {
+export type CommandExecuter = {
   [command in Command]: CommandStateResolver<command>
 }

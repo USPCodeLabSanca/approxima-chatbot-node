@@ -1,14 +1,14 @@
-import { ICommandExecuter } from '../models/command';
+import { CommandExecuter } from '../models/commands';
 import {
+  clearCommand,
   helpCommand,
-  prefsCommand,
-  showCommand,
   pendingCommand,
+  prefsCommand,
   randomCommand,
-  clearCommand
-} from './resolver';
+  showCommand
+} from './resolvers';
 
-export const commandExecuter: ICommandExecuter = {
+export const commandExecuter: CommandExecuter = {
   help: helpCommand,
   clear: clearCommand,
   pending: pendingCommand,

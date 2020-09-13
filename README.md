@@ -30,3 +30,33 @@ Copie o `.env.template` e renomear para `.env` e colocar as passar as variaveis 
 - /desc => Troca a descrição do usuário.
 
 - /help => Mostra os comandos disponíveis.
+
+## Estrutura do projeto
+
+- **commands**
+  - **resolvers**
+    - Um arquivo ou pasta com as funções que lidam (resolvem) os comandos
+    - **common**
+      - Logica comum entre mais de um comando
+- **controllers**
+  - Interface entre mundo externo e aplicação
+- **data**
+  - Dados estaticos como as categorias
+- **database**
+  - **repository**
+    - Lida diretamente com o banco
+    - Funções gerais: `get, getAll, create, edit`
+    - Se formos mudar o banco e resto da aplicação continua funcionando normalmente
+  - **controllers**
+    - Interface entre o repository do banco e o resto da aplicação
+    - Funções especificas: `editarPreferencias, adicionarNovaConexao`
+- **helpers**
+  - Pequenas funções gerais para ajudar no projeto
+- **models**
+  - Interfaces que são usadas em mais de um lugar (que tem um export)
+  - Interfaces que vão ser usadas só em um arquivo podem ficar no proprio arquivo
+- **services**
+  - Logica de negocio
+  - Scripts/classes com funções especificas
+- **tasks**
+  - Scripts para teste ou para funções especificas por exemplo: `resetar o banco`

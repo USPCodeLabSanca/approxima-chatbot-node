@@ -1,9 +1,8 @@
-import { IUser } from '../models/user';
 import { Collection, Db } from 'mongodb';
-import { isProd } from '../helpers';
+import { isProd } from '../../helpers';
+import { IUser } from '../../models/user';
 
-
-export class UserController {
+export class UserRepository {
 
   private usersCollection: Collection<IUser>;
 

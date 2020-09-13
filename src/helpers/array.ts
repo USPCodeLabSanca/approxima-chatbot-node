@@ -1,8 +1,4 @@
 
-export const includeElement = <T extends any>(array: T[], element: T) => {
-  return array.indexOf(element) > -1;
-};
-
 /** Removes an element from the `array` and returns true if the elements exists */
 export const removeByIndex = (array: any[], index: number) => {
   if (index >= 0) {

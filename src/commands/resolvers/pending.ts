@@ -1,6 +1,6 @@
 import { InlineKeyboardButton } from 'node-telegram-bot-api';
 import { removeByValue } from '../../helpers/array';
-import { CommandStateResolver } from '../../models/command';
+import { CommandStateResolver } from '../../models/commands';
 
 interface IPendingContext {
   lastShownId?: number;
@@ -54,7 +54,7 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
     const text = 'A seguinte pessoa quer se conectar a você:\n\n' +
       `"${targetBio}"`;
 
-    client.sendMessage(text, { reply_markup: { inline_keyboard: keyboard } } );
+    client.sendMessage(text, { reply_markup: { inline_keyboard: keyboard } });
 
     return 'ANSWER';
   },
