@@ -75,6 +75,7 @@ const buildKeyboard = (context: IPrefsContext) => {
   keyboard.push(
     [{ text: '❰ ENVIAR ❱', callback_data: 'finish' }]
   );
+
   keyboard.push(
     [{ text: '❰ CANCELAR ❱', callback_data: 'cancel' }]
   );
