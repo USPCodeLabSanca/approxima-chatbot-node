@@ -10,8 +10,8 @@
   "scripts": {
     "start": "tsc && node -r dotenv/config dist/index.js",
     "dev": "ts-node-dev -r dotenv/config src/index.ts",
-    "lint": "eslint src/**",
-    "lint-fix": "eslint src/** --fix",
+    "lint": "eslint src/**/*.ts",
+    "lint-fix": "eslint src/**/*.ts --fix",
     "rank": "tsc && node dist/tasks/rank.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -5,7 +5,7 @@ Chatbot de Telegram que será desenvolvido como MVP (Minimum Valueable Product) 
 ## Depois de clonar o reposotorio
 
 Rode o comando `npm i` para instalar as libs necessárias.
-Copie o `.env.template` e renomear para `.env` e colocar as passar as variaveis de ambiente
+Copie o `.env.template` e renomeie para `.env`, colocando as variaveis de ambiente corretamente.
 
 ## Lista de comandos (@approxima_bot)
 
@@ -43,10 +43,10 @@ Copie o `.env.template` e renomear para `.env` e colocar as passar as variaveis 
 - **data**
   - Dados estaticos como as categorias
 - **database**
-  - **repository**
+  - **repositories**
     - Lida diretamente com o banco
     - Funções gerais: `get, getAll, create, edit`
-    - Se formos mudar o banco e resto da aplicação continua funcionando normalmente
+    - Se formos mudar o banco, o resto da aplicação continua funcionando normalmente
   - **controllers**
     - Interface entre o repository do banco e o resto da aplicação
     - Funções especificas: `editarPreferencias, adicionarNovaConexao`
