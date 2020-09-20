@@ -1,6 +1,7 @@
 import { Db } from 'mongodb';
 import TelegramBot from 'node-telegram-bot-api';
 import { stateMachine } from '../commands/command-state-machine';
+import { StatsController } from '../database/controllers/stats';
 import { UserController } from '../database/controllers/user';
 import { getTelegramBot } from './telegram-bot';
 
@@ -15,6 +16,7 @@ interface IOtherClientOptions {
 
 interface IDb {
   user: UserController;
+  stats: StatsController;
 }
 
 type RequireAtLeastOne<T, Keys extends keyof T = keyof T> =
@@ -51,7 +53,8 @@ export class ApproximaClient {
     this.name = msg.from!.first_name;
     this.username = msg.from!.username;
     this.db = {
-      user: new UserController(db)
+      user: new UserController(db),
+      stats: new StatsController(db)
     };
   }
 

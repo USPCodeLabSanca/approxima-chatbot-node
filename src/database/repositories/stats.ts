@@ -15,11 +15,8 @@ export class StatsRepository {
     return this.statsCollection.find().toArray();
   }
 
-  get = async (statsId: number): Promise<IStats> => {
-    const stats = await this.statsCollection.findOne({ _id: statsId });
-    if (!stats) {
-      throw Error('Stats should exsits');
-    }
+  get = async (dayString: string): Promise<IStats | null> => {
+    const stats = await this.statsCollection.findOne({ _id: dayString });
     return stats;
   }
 
@@ -32,12 +29,12 @@ export class StatsRepository {
     return this.statsCollection.insertOne(newStats);
   }
 
-  edit = async (statsId: number, stats: Partial<IStats>) => {
-    const statsInDb = await this.get(statsId);
+  edit = async (dayString: string, stats: Partial<IStats>) => {
+    const statsInDb = await this.get(dayString);
     if (!statsInDb) {
       console.error('Stats does not exist');
       return;
     }
-    return this.statsCollection.updateOne({ _id: statsId }, { $set: stats });
+    return this.statsCollection.updateOne({ _id: dayString }, { $set: stats });
   }
 }
