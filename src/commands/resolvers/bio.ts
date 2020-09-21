@@ -10,6 +10,7 @@ const changeBio = (client: ApproximaClient, newBio: string, oldBio: string) => {
     client.sendMessage('Esse ja é sua descriçãos kk');
     return;
   }
+  client.registerAction('edit_desc_command', { changed: true, new_desc: newBio });
   client.db.user.edit(client.userId, { bio: newBio });
   client.sendMessage('Sua descrição foi alterado com sucesso!');
 };

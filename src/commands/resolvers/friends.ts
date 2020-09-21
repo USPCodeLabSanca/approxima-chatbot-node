@@ -149,6 +149,7 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
      já se conectou.
      */
 
+    const beginDate = Date.now();
     // facilita na hora de referenciar esse usuario
     const context = client.getCurrentContext<IFriendsContext>();
     const userId = client.userId;
@@ -192,6 +193,8 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
       response += bottomMsg;
     }
 
+    const endDate = Date.now();
+    client.registerAction('friends_command', { ellapsed_time: endDate - beginDate });
 
     client.sendMessage(response, {
       reply_markup: {

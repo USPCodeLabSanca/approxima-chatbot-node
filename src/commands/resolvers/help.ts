@@ -5,7 +5,7 @@ export const helpCommand: CommandStateResolver<'help'> = (
   client: ApproximaClient, _arg?: string
 ) => {
 
-  client.db.stats.registerAction('help_command', client.userId);
+  client.registerAction('help_command');
 
   /* eslint-disable max-len */
   const helpText = '/prefs --> Retorna uma lista com todas as categorias de interesse. A partir dela, você poderá adicionar ou remover interesses.\n\n' +

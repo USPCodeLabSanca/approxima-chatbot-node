@@ -14,6 +14,7 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
     a descrição da pessoa e dois botões: conectar ou descartar).
     **/
 
+    client.registerAction('pending_command');
     const context = client.getCurrentContext<IPendingContext>();
 
     // facilita na hora de referenciar esse usuario
@@ -73,6 +74,7 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
     const myData = await client.db.user.get(userId);
 
     if (arg === 'reject') {
+      client.registerAction('answered_pending', { answer: arg });
       myData.rejects.push(targetId);
 
       // Saves in DB
@@ -90,6 +92,7 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
     }
 
     // For now on, we know that the answer is "accept"!
+    client.registerAction('answered_pending', { answer: arg });
 
     // Register the new connection
     myData.connections.push(targetId);

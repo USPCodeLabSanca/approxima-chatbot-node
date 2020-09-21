@@ -5,21 +5,31 @@ export interface IStats {
   active_users: IUserDayEntry[];
 }
 
-export type StatsActions = Exclude<keyof IUserDayEntry, '_id'>;
+export type StatsActions = typeof stateActions[number];
 
-export interface IUserDayEntry {
+const stateActions = [
+  'start_command',
+  'help_command',
+  'edit_name_command',
+  'clear_rejects_command',
+  'edit_interests_command',
+  'prefs_wrong_action',
+  'friends_command',
+  'show_person_command',
+  'answered_suggestion',
+  'answered_pending',
+  'edit_desc_command',
+  'random_person_command',
+  'pending_command'
+] as const;
+
+export interface IUserDayEntry extends UserActionEntry {
   /** User id */
   _id: number;
-  start_command?: IStatsEntry[];
-  help_command?: IStatsEntry[];
-  edit_name_command?: IStatsEntry[];
-  clear_rejects_command?: IStatsEntry[];
-  edit_interests_command?: IStatsEntry[];
-  prefs_wrong_action?: IStatsEntry[];
-  friends_command?: IStatsEntry[];
-  show_person_command?: IStatsEntry[];
-  answered_suggestion?: IStatsEntry[];
-  answered_pending?: IStatsEntry[];
+}
+
+type UserActionEntry = {
+  [action in StatsActions]?: IStatsEntry[];
 }
 
 export interface IStatsEntry {

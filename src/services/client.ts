@@ -3,6 +3,7 @@ import TelegramBot from 'node-telegram-bot-api';
 import { stateMachine } from '../commands/command-state-machine';
 import { StatsController } from '../database/controllers/stats';
 import { UserController } from '../database/controllers/user';
+import { StatsActions } from '../models/stats';
 import { getTelegramBot } from './telegram-bot';
 
 const telegramBot = getTelegramBot();
@@ -108,6 +109,10 @@ export class ApproximaClient {
   answerCallbackQuery = () => {
     if (!this.callbackMessage) return;
     telegramBot.answerCallbackQuery(this.callbackMessage.id);
+  }
+
+  registerAction = (actionName: StatsActions, data?: any) => {
+    this.db.stats.registerAction(actionName, this.userId, data);
   }
 
   getCurrentState = <T = any>() => {

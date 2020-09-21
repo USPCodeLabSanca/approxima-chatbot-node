@@ -15,6 +15,7 @@ export const randomCommand: CommandStateResolver<'random'> = {
     de conexão deve existir, bem como um botão de "agora não".
     **/
 
+    client.registerAction('random_person_command');
     const context = client.getCurrentContext<IRandomContext>();
     // facilita na hora de referenciar esse usuario
     const userId = client.userId;

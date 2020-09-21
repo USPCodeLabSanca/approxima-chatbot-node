@@ -17,6 +17,7 @@ export const showCommand: CommandStateResolver<'show'> = {
     bem como um botão de "agora não".
     **/
 
+    client.registerAction('show_person_command');
     const context = client.getCurrentContext<IShowContext>();
 
     // facilita na hora de referenciar esse usuario

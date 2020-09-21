@@ -9,6 +9,7 @@ export const clearCommand: CommandStateResolver<'clear'> = async (client, _arg) 
   // facilita na hora de referenciar esse usuario
   const userId = client.userId;
   const user = await client.db.user.get(userId);
+  client.registerAction('clear_rejects_command');
 
   if (user.rejects.length == 0) {
     client.sendMessage(

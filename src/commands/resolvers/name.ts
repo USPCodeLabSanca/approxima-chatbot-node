@@ -10,6 +10,7 @@ const changeName = (client: ApproximaClient, newName: string, oldName: string) =
     client.sendMessage('Esse ja é seu nome kk');
     return;
   }
+  client.registerAction('edit_name_command', { changed: true, new_name: newName });
   client.db.user.edit(client.userId, { name: newName });
   client.sendMessage('Seu nome foi alterado com sucesso!');
 };

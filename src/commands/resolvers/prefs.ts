@@ -102,6 +102,7 @@ export const prefsCommand: CommandStateResolver<'prefs'> = {
     const context = client.getCurrentContext<IPrefsContext>();
     if (arg === 'finish') {
       await client.db.user.edit(client.userId, { interests: context.interests });
+      client.registerAction('edit_interests_command', { changed: true });
       client.deleteMessage();
       client.sendMessage('Preferencias salvas!');
       return 'END';
@@ -114,6 +115,7 @@ export const prefsCommand: CommandStateResolver<'prefs'> = {
     }
     else if (arg === 'cancel') {
       client.deleteMessage();
+      client.registerAction('edit_interests_command', { changed: false });
       client.sendMessage('Preferências não salvas');
       return 'END';
     }

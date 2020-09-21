@@ -19,7 +19,7 @@ export const answerState = async (
   const user = context.user;
 
   if (arg === 'dismiss') {
-
+    client.registerAction('answered_suggestion', { answer: arg });
     user.rejects.push(targetId);
 
     // Saves in DB
@@ -36,6 +36,7 @@ export const answerState = async (
     return 'ANSWER';
   }
 
+  client.registerAction('answered_suggestion', { answer: arg });
   user.invited.push(targetId);
 
   // Update my info on BD
