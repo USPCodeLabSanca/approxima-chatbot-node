@@ -6,18 +6,17 @@ export const clearCommand: CommandStateResolver<'clear'> = async (client, _arg) 
   permitindo que elas apareçam novamente nas buscas
   **/
 
-  // facilita na hora de referenciar esse usuario
-  const userId = client.userId;
-  const user = await client.db.user.get(userId);
+  const { currentUser } = client.getCurrentState();
+
   client.registerAction('clear_rejects_command');
 
-  if (user.rejects.length == 0) {
+  if (currentUser.rejects.length == 0) {
     client.sendMessage(
       'Você não "rejeitou" ninguém por enquanto.');
     return 'END';
   }
-  user.rejects = [];
-  client.db.user.edit(userId, { rejects: [] });
+  currentUser.rejects = [];
+  client.db.user.edit(currentUser._id, { rejects: [] });
 
   client.sendMessage(
     'Tudo certo! Sua lista de "rejeitados" foi limpa!'

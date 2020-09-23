@@ -1,9 +1,15 @@
 import { Command } from '../models/commands';
+import { IUser } from '../models/user';
 
 interface ICommandStateMachineUserEntry<T> {
   currentState: string;
+  currentUser: IUser;
   currentCommand: Command | '';
   context: T;
+  endKeyboardCommandOnText?: {
+    deleteKeyboard?: boolean;
+    keyboardId?: number;
+  };
 }
 
 interface ICommandStateMachine {
@@ -15,11 +21,7 @@ class CommandStateMachine {
 
   getState = <T>(userId: number): ICommandStateMachineUserEntry<T> => {
     if (!this.stateMachine[userId]) {
-      this.stateMachine[userId] = {
-        context: {},
-        currentCommand: '',
-        currentState: 'INITIAL'
-      };
+      this.resetState(userId);
     }
     return this.stateMachine[userId];
   }
@@ -27,12 +29,12 @@ class CommandStateMachine {
   resetState = (userId: number) => {
     this.stateMachine[userId] = {
       context: {},
+      currentUser: undefined as any as IUser,
       currentCommand: '',
-      currentState: 'INITIAL'
+      currentState: 'INITIAL',
+      endKeyboardCommandOnText: undefined
     };
   }
-
-
 }
 
 export const stateMachine = new CommandStateMachine();

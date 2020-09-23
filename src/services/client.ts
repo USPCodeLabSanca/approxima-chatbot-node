@@ -52,7 +52,9 @@ export class ApproximaClient {
     const msg = (message || callbackMessage)!;
     this.userId = msg.from!.id;
     this.name = msg.from!.first_name;
-    this.username = msg.from!.username;
+    if (msg.from!.username) {
+      this.username = '@' + msg.from!.username;
+    }
     this.db = {
       user: new UserController(db),
       stats: new StatsController(db)
@@ -70,14 +72,14 @@ export class ApproximaClient {
 
   sendMessage = async (
     text: string,
-    telegrmsOptions?: TelegramBot.SendMessageOptions,
+    telegramOptions?: TelegramBot.SendMessageOptions,
     otherOptions?: IOtherClientOptions
   ) => {
-    telegrmsOptions = telegrmsOptions ?? { reply_markup: { remove_keyboard: true } };
+    telegramOptions = telegramOptions ?? { reply_markup: { remove_keyboard: true } };
     const msg = await telegramBot.sendMessage(
       otherOptions?.chatId || this.userId,
       text,
-      telegrmsOptions
+      telegramOptions
     );
     if (otherOptions?.selfDestruct) {
       setTimeout(() => {
@@ -115,11 +117,11 @@ export class ApproximaClient {
     this.db.stats.registerAction(actionName, this.userId, data);
   }
 
-  getCurrentState = <T = any>() => {
-    return stateMachine.getState<T>(this.userId);
+  resetCurrentState = () => {
+    stateMachine.resetState(this.userId);
   }
 
-  getCurrentContext = <T = any>() => {
-    return stateMachine.getState<T>(this.userId).context;
+  getCurrentState = <T = any>() => {
+    return stateMachine.getState<T>(this.userId);
   }
 }

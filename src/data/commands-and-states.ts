@@ -1,9 +1,10 @@
 
 export const commandsAndStates = {
+  start: ['NAME', 'BIO'],
   help: [],
   clear: [],
   name: ['NEW_NAME'],
-  bio: ['NEW_BIO'],
+  desc: ['NEW_BIO'],
   show: ['ANSWER'],
   random: ['ANSWER'],
   pending: ['ANSWER'],

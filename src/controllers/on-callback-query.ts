@@ -14,6 +14,7 @@ export const onCallbackQuery = async (
     return;
   }
 
-  runCommand(client, state.currentCommand, callBackData);
+  client.answerCallbackQuery();
 
+  runCommand(client, state.currentCommand, callBackData);
 };

@@ -1,11 +1,10 @@
 import { ApproximaClient } from '../../../services/client';
-import { IUser } from '../../../models/user';
 
 export const answerState = async (
   client: ApproximaClient, arg: string
 ): Promise<'END' | 'ANSWER'> => {
 
-  const context = client.getCurrentContext<{ lastShownId?: number, user: IUser }>();
+  const { context, currentUser } = client.getCurrentState<{ lastShownId?: number }>();
   const targetId = context.lastShownId;
 
   if (!targetId) {
@@ -16,14 +15,13 @@ export const answerState = async (
 
   // facilita na hora de referenciar esse usuario
   const userId = client.userId;
-  const user = context.user;
 
   if (arg === 'dismiss') {
     client.registerAction('answered_suggestion', { answer: arg });
-    user.rejects.push(targetId);
+    currentUser.rejects.push(targetId);
 
     // Saves in DB
-    client.db.user.edit(userId, { 'rejects': user.rejects });
+    client.db.user.edit(userId, { 'rejects': currentUser.rejects });
 
     client.sendMessage('Sugestão rejeitada.');
 
@@ -37,10 +35,10 @@ export const answerState = async (
   }
 
   client.registerAction('answered_suggestion', { answer: arg });
-  user.invited.push(targetId);
+  currentUser.invited.push(targetId);
 
   // Update my info on BD
-  client.db.user.edit(userId, { 'invited': user.invited });
+  client.db.user.edit(userId, { 'invited': currentUser.invited });
 
   // Now, let's update info from the target user
   const targetData = await client.db.user.get(targetId);
@@ -54,6 +52,7 @@ export const answerState = async (
     'Utilize o comando /pending para vê-la.';
 
   const targetChat = targetData['chat_id'];
+
   client.sendMessage(targetMsg, undefined, { chatId: targetChat });
 
   client.sendMessage('Solicitação enviada.');

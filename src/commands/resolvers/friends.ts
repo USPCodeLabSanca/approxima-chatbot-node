@@ -1,10 +1,8 @@
 import { isProd } from '../../helpers';
 import { CommandStateResolver } from '../../models/commands';
-import { IUser } from '../../models/user';
 import { ApproximaClient } from '../../services/client';
 
 interface IFriendsContext {
-  user: IUser;
   pagesText: string[];
   currentPage: number;
 }
@@ -109,7 +107,9 @@ const friendsPaginator = async (client: ApproximaClient, connections: number[]) 
     '='.repeat(32) +
     '\n\n';
 
-  const msgLimit = 400; // Limit beatifully crafted by hand
+  // Vitão: Limit beatifully crafted by hand
+  // Lui: kkkkkkk 👌
+  const msgLimit = 1300;
 
   let curPageText = '';
 
@@ -151,18 +151,21 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
 
     const beginDate = Date.now();
     // facilita na hora de referenciar esse usuario
-    const context = client.getCurrentContext<IFriendsContext>();
-    const userId = client.userId;
+    const state = client.getCurrentState<IFriendsContext>();
+    const currentUser = state.currentUser;
 
-    context.user = await client.db.user.get(userId);
-    context.currentPage = 0;
+    state.context.currentPage = 0;
 
-    if (context.user.connections.length === 0) {
+    if (state.currentUser.connections.length === 0) {
       // Este usuario ainda nao tem conexoes
       const response = 'Você ainda não possui nenhuma conexão!\n' +
         'Que tal usar o comando /show para conhecer alguém novo?';
 
-      client.sendMessage(response);
+      const message = await client.sendMessage(response);
+      state.endKeyboardCommandOnText = {
+        deleteKeyboard: true,
+        keyboardId: message.message_id
+      };
 
       return 'END';
     }
@@ -171,25 +174,25 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
 
     const connectionsSet = isProd ?
       // @ts-ignore
-      [...new Set(context.user.connections)] :
-      context.user.connections;
+      [...new Set(currentUser.connections)] :
+      currentUser.connections;
 
     // Corrige as suas conexoes caso hajam repetições
-    if (connectionsSet.length < context.user.connections.length) {
+    if (connectionsSet.length < currentUser.connections.length) {
       // Existem repeticoes no original
-      context.user.connections = connectionsSet;
-      client.db.user.edit(userId, { connections: context.user.connections });
+      currentUser.connections = connectionsSet;
+      client.db.user.edit(currentUser._id, { connections: currentUser.connections });
     }
     const bottomMsg = 'Utilize esses botões para navegar entre as páginas:\n\n';
 
     const pagesTextList = await friendsPaginator(client, connectionsSet);
-    context.pagesText = pagesTextList;
+    state.context.pagesText = pagesTextList;
 
     const buttonPairs = makeButtons(0, pagesTextList.length - 1);
 
     let response = pagesTextList[0];
 
-    if (buttonPairs[0].length != 0) {
+    if (buttonPairs.length !== 0) {
       response += bottomMsg;
     }
 
@@ -208,7 +211,7 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
   },
   CHOOSE_PAGE: (clients, arg) => {
 
-    const context = clients.getCurrentContext<IFriendsContext>();
+    const { context } = clients.getCurrentState<IFriendsContext>();
     if (arg === 'close') {
       clients.deleteMessage();
       // TODO: send message?
@@ -216,7 +219,6 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
     }
 
     const currentPage = +arg;
-    console.log(currentPage, context.currentPage);
 
     if (isNaN(currentPage)) {
       // TODO: tratar esse caso
@@ -225,7 +227,6 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
     }
 
     if (currentPage === context.currentPage) {
-      clients.answerCallbackQuery();
       return 'CHOOSE_PAGE';
     }
 
@@ -237,7 +238,7 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
 
     let response = context.pagesText[currentPage];
 
-    if (buttonPairs[0].length != 0) {
+    if (buttonPairs.length != 0) {
       response += bottom_msg;
     }
 

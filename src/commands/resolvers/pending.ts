@@ -15,20 +15,18 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
     **/
 
     client.registerAction('pending_command');
-    const context = client.getCurrentContext<IPendingContext>();
+    const { context, currentUser } = client.getCurrentState<IPendingContext>();
 
     // facilita na hora de referenciar esse usuario
     const userId = client.userId;
 
-    const myData = await client.db.user.get(userId);
-
-    if (myData.pending.length === 0) {
+    if (currentUser.pending.length === 0) {
       client.sendMessage('Você não possui novas solicitações de conexão.');
       return 'END';
     }
 
     // Pego o primeiro elemento na "fila"
-    const target = myData.pending.pop()!;
+    const target = currentUser.pending.pop()!;
 
     const targetData = await client.db.user.get(target);
     const targetBio = targetData.bio;
@@ -37,7 +35,7 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
     context.lastShownId = target;
 
     // Salvo no BD o novo array de 'pending'
-    client.db.user.edit(userId, { 'pending': myData.pending });
+    client.db.user.edit(userId, { 'pending': currentUser.pending });
 
     // Me retiro da lista de "invited" do outro usuario
     const targetInvited = targetData.invited;
@@ -60,7 +58,7 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
     return 'ANSWER';
   },
   ANSWER: async (client, arg) => {
-    const context = client.getCurrentContext<IPendingContext>();
+    const { context, currentUser } = client.getCurrentState<IPendingContext>();
     const targetId = context.lastShownId;
 
     if (!targetId) {
@@ -71,14 +69,13 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
 
     // facilita na hora de referenciar esse usuario
     const userId = client.userId;
-    const myData = await client.db.user.get(userId);
 
     if (arg === 'reject') {
       client.registerAction('answered_pending', { answer: arg });
-      myData.rejects.push(targetId);
+      currentUser.rejects.push(targetId);
 
       // Saves in DB
-      client.db.user.edit(userId, { 'rejects': myData.rejects });
+      client.db.user.edit(userId, { 'rejects': currentUser.rejects });
 
       client.sendMessage('Pedido de conexão rejeitado.');
 
@@ -95,10 +92,10 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
     client.registerAction('answered_pending', { answer: arg });
 
     // Register the new connection
-    myData.connections.push(targetId);
+    currentUser.connections.push(targetId);
 
     // Update my info on BD
-    client.db.user.edit(userId, { 'connections': myData.connections });
+    client.db.user.edit(userId, { 'connections': currentUser.connections });
 
     // Update their info on BD
 
@@ -112,7 +109,7 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
 
     const targetChat = targetData._id;
 
-    const textTarget = `${myData.username} acaba de aceitar seu pedido de conexão! ` +
+    const textTarget = `${currentUser.username} acaba de aceitar seu pedido de conexão! ` +
       'Use o comando /friends para checar.';
 
     console.log('targetChat', targetChat);

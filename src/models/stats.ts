@@ -5,8 +5,6 @@ export interface IStats {
   active_users: IUserDayEntry[];
 }
 
-export type StatsActions = typeof stateActions[number];
-
 const stateActions = [
   'start_command',
   'help_command',
@@ -22,6 +20,8 @@ const stateActions = [
   'random_person_command',
   'pending_command'
 ] as const;
+
+export type StatsActions = typeof stateActions[number];
 
 export interface IUserDayEntry extends UserActionEntry {
   /** User id */

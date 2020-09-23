@@ -4,7 +4,6 @@ import { getDb } from '../database/init';
 import { ApproximaClient } from './client';
 import { getTelegramBot } from './telegram-bot';
 
-
 // Self-Executing Anonymous Function because we have to `await` for the databse to be ready
 (async () => {
 
@@ -13,6 +12,7 @@ import { getTelegramBot } from './telegram-bot';
 
   telegramBot.on('text', async (msg) => {
     if (!msg.from) {
+      console.error('"from" in msg is undefined', msg);
       return;
     }
 

@@ -2,11 +2,9 @@ import { CommandStateResolver } from '../../models/commands';
 import { rank } from '../../services/ranker';
 import { InlineKeyboardButton } from 'node-telegram-bot-api';
 import { answerState } from './common/answer-state';
-import { IUser } from '../../models/user';
 
 interface IShowContext {
   lastShownId: number | undefined;
-  user: IUser;
 }
 
 export const showCommand: CommandStateResolver<'show'> = {
@@ -18,12 +16,12 @@ export const showCommand: CommandStateResolver<'show'> = {
     **/
 
     client.registerAction('show_person_command');
-    const context = client.getCurrentContext<IShowContext>();
+    const state = client.getCurrentState<IShowContext>();
+    const context = state.context;
+    const currentUser = state.currentUser!;
 
     // facilita na hora de referenciar esse usuario
     const userId = client.userId;
-
-    context.user = await client.db.user.get(userId);
 
     // get all users (IDs) from the DB
     const allUsers = await client.db.user.getAll();
@@ -32,10 +30,10 @@ export const showCommand: CommandStateResolver<'show'> = {
     const allowedUsers = allUsers.filter(user => {
       const otherUserId = user._id;
       return otherUserId !== userId &&
-        !context.user.pending.includes(otherUserId) &&
-        !context.user.invited.includes(otherUserId) &&
-        !context.user.connections.includes(otherUserId) &&
-        !context.user.rejects.includes(otherUserId);
+        !currentUser.pending.includes(otherUserId) &&
+        !currentUser.invited.includes(otherUserId) &&
+        !currentUser.connections.includes(otherUserId) &&
+        !currentUser.rejects.includes(otherUserId);
     });
 
     if (allowedUsers.length === 0) {
@@ -54,7 +52,7 @@ export const showCommand: CommandStateResolver<'show'> = {
       }
 
     }
-    const target = rank(context.user.interests, usersInterests);
+    const target = rank(currentUser.interests, usersInterests);
 
     if (!target) {
       // Nao ha ninguem com as preferencias do usuario ainda

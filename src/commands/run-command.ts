@@ -8,6 +8,12 @@ export const runCommand = async (
 ) => {
 
   const state = client.getCurrentState();
+
+  if (!state.currentUser && command !== 'start') {
+    client.sendMessage('Você precisa se registrar para continuar!');
+    return;
+  }
+
   let stateResolver: StateResolverFunction<Command>;
 
 

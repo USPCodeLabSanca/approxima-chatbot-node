@@ -5,6 +5,7 @@ import {
 } from '../models/commands';
 import { runCommand } from '../commands/run-command';
 import { ApproximaClient } from '../services/client';
+import { IUser } from '../models/user';
 
 const botName = 'approxima_bot';
 
@@ -29,21 +30,43 @@ export const onText = async (client: ApproximaClient, msg: TelegramBot.Message):
     return;
   }
 
+  let user: IUser | undefined;
+  try {
+    user = await client.db.user.get(client.userId);
+  }
+  catch {
+    console.log(`The following user is not registered: ${client.username}`);
+  }
+
   const cleanMsgText = cleanMessageRegex.exec(msgText)![1];
 
   const state = client.getCurrentState();
 
-  if (cleanMsgText === '.') {
-    state.context = {};
-    state.currentCommand = '';
-    state.currentState = 'INITIAL';
+  state.currentUser = user as IUser;
+
+  if (cleanMsgText === 'reset') {
+    client.resetCurrentState();
     return;
+  }
+
+  if (state.endKeyboardCommandOnText) {
+
+    const {
+      deleteKeyboard,
+      keyboardId
+    } = state.endKeyboardCommandOnText;
+
+    if (deleteKeyboard && keyboardId) {
+      client.deleteMessage(state.endKeyboardCommandOnText.keyboardId);
+    }
+
+    client.resetCurrentState();
   }
 
   const emptyCommandExec = emptyCommandRegex.exec(msgText);
   const commandWithArgExec = commandWithArgRegex.exec(msgText);
 
-  if (state.currentCommand !== '' && state.currentState !== '') {
+  if (state.currentCommand !== '' && state.currentState !== 'INITIAL') {
     runCommand(client, state.currentCommand, cleanMsgText);
   }
   else if (emptyCommandExec) {
@@ -56,6 +79,10 @@ export const onText = async (client: ApproximaClient, msg: TelegramBot.Message):
     runCommand(client, command, arg);
   }
   else {
+    if (!state.currentUser) {
+      client.sendMessage('Você precisa se registrar para continuar!');
+      return;
+    }
     // Command not found
     client.sendMessage(`Comando \`${cleanMsgText}\` não encontrado`, { parse_mode: 'Markdown' });
   }

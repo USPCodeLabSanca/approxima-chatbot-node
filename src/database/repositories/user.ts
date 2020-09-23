@@ -20,17 +20,23 @@ export class UserRepository {
     if (!user) {
       // TODO: fazer com que essa funcao seja chamada somente se o usuario existe
       // TODO: fazer o setup inicial do usuario
-      throw Error('User should exsits');
+      throw Error('User should exist');
     }
     return user;
   }
 
   create = async (newUser: IUser) => {
-    const user = await this.get(newUser._id);
-    if (user) {
-      console.error('User already exists');
-      return;
+    try {
+      const user = await this.get(newUser._id);
+      if (user) {
+        console.error('User already exists');
+        return;
+      }
     }
+    catch {
+      console.log('This user does not exist... we\'re fine.');
+    }
+
     return this.usersCollection.insertOne(newUser);
   }
 

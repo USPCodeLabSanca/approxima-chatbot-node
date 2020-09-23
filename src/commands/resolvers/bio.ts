@@ -7,7 +7,7 @@ interface IBioContext {
 
 const changeBio = (client: ApproximaClient, newBio: string, oldBio: string) => {
   if (newBio === oldBio) {
-    client.sendMessage('Esse ja é sua descriçãos kk');
+    client.sendMessage('Essa já é sua descrição kk');
     return;
   }
   client.registerAction('edit_desc_command', { changed: true, new_desc: newBio });
@@ -15,21 +15,20 @@ const changeBio = (client: ApproximaClient, newBio: string, oldBio: string) => {
   client.sendMessage('Sua descrição foi alterado com sucesso!');
 };
 
-export const bioCommand: CommandStateResolver<'bio'> = {
+export const bioCommand: CommandStateResolver<'desc'> = {
   INITIAL: async (client, _arg, originalArg) => {
-    const context = client.getCurrentContext<IBioContext>();
-    const user = await client.db.user.get(client.userId);
-    context.currentBio = user.bio;
+    const { currentUser } = client.getCurrentState<IBioContext>();
+
     if (!originalArg) {
-      const response = `Sua descrição atual é: ${user.bio} \n\n` +
-        'Agora, manda pra mim a sua nova descrição! ' +
+      const response = `Sua descrição atual é: ${currentUser.bio} \n\n` +
+        'Agora, manda pra mim a sua nova descrição!\n' +
         'Envie um ponto (.) caso tenha desistido de mudá-la.';
       client.sendMessage(response);
 
       return 'NEW_BIO';
     }
 
-    changeBio(client, originalArg, context.currentBio);
+    changeBio(client, originalArg, currentUser.bio);
     return 'END';
 
   },
@@ -39,8 +38,8 @@ export const bioCommand: CommandStateResolver<'bio'> = {
       return 'END';
     }
 
-    const currentBio = client.getCurrentContext<IBioContext>().currentBio;
-    changeBio(client, originalArg, currentBio);
+    const { currentUser } = client.getCurrentState<IBioContext>();
+    changeBio(client, originalArg, currentUser.bio);
     return 'END';
   }
 };
