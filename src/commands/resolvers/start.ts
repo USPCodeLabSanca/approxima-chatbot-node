@@ -7,8 +7,7 @@ interface IStartContext {
 
 export const startCommand: CommandStateResolver<'start'> = {
   INITIAL: async (client) => {
-    const state = client.getCurrentState();
-    const user = state.currentUser;
+    const { currentUser: user } = client.getCurrentState();
 
     if (user) {
       const message = 'É muito bom ter você de volta! Bora começar a usar o Approxima :)\n' +

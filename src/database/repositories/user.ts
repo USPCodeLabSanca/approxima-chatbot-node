@@ -18,8 +18,6 @@ export class UserRepository {
   get = async (userId: number): Promise<IUser> => {
     const user = await this.usersCollection.findOne({ _id: userId });
     if (!user) {
-      // TODO: fazer com que essa funcao seja chamada somente se o usuario existe
-      // TODO: fazer o setup inicial do usuario
       throw Error('User should exist');
     }
     return user;
