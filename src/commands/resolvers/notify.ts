@@ -22,7 +22,7 @@ export const notifyCommand: CommandStateResolver<'notify'> = {
     }
     const response = `Olá ${adminName}!\n` +
       'Me informe a mensagem que deseja mandar para TODOS os usuários do Approxima.\n' +
-      'PS: Lembre-se de usar esse recurso com responsabilidade :)';
+      'OBS: Lembre-se de usar esse recurso com responsabilidade!!! :)';
 
     client.registerAction('notify_command');
 
@@ -31,14 +31,14 @@ export const notifyCommand: CommandStateResolver<'notify'> = {
     return 'SEND';
   },
   SEND: async (client, _arg, originalArg) => {
-    const allUSers = await client.db.user.getAllIds();
+    const allUserIds = await client.db.user.getAllIds();
 
-    for (const user of allUSers) {
+    for (const userId of allUserIds) {
       try {
-        client.sendMessage(originalArg, undefined, { chatId: user });
+        client.sendMessage(originalArg, undefined, { chatId: userId });
       }
       catch (error) {
-        console.error(`Erro ao interagir com o chat ${user}: ${error}`);
+        console.error(`Erro ao interagir com o chat ${userId}: ${error}`);
       }
     }
     // Avisa que esse admin mandou o broadcast

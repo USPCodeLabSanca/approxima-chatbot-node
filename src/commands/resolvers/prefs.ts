@@ -100,7 +100,7 @@ export const prefsCommand: CommandStateResolver<'prefs'> = {
   CHOOSING: async (client, arg, originalArg) => {
     const { context } = client.getCurrentState<IPrefsContext>();
     if (arg === 'finish') {
-      await client.db.user.edit(client.userId, { interests: context.interests });
+      client.db.user.edit(client.userId, { interests: context.interests });
       client.registerAction('edit_interests_command', { changed: true });
       client.deleteMessage();
       client.sendMessage('Seus interesses foram atualizados!');

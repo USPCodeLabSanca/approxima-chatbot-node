@@ -20,9 +20,9 @@ export const randomCommand: CommandStateResolver<'random'> = {
     const currentUser = state.currentUser!;
     const context = state.context;
 
-    const allUser = await client.db.user.getAll();
+    const allUsers = await client.db.user.getAll();
 
-    const myAllowedUsers = allUser.filter(otherUser => {
+    const myAllowedUsers = allUsers.filter(otherUser => {
       return otherUser._id !== client.userId &&
         !currentUser.invited.includes(otherUser._id) &&
         !currentUser.rejects.includes(otherUser._id) &&
