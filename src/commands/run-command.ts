@@ -8,6 +8,12 @@ export const runCommand = async (
 ) => {
 
   const state = client.getCurrentState();
+
+  if (!state.currentUser && command !== 'start') {
+    client.sendMessage('Você precisa se registrar para continuar!');
+    return;
+  }
+
   let stateResolver: StateResolverFunction<Command>;
 
 
@@ -25,6 +31,8 @@ export const runCommand = async (
   if (nextState === 'END') {
     state.currentState = 'INITIAL';
     state.currentCommand = '';
+    clearTimeout(state.callbackTimeoutId);
+    state.callbackTimeoutId = undefined;
   }
   else {
     state.currentState = nextState;

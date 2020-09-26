@@ -7,16 +7,22 @@ import {
   nameCommand,
   bioCommand,
   randomCommand,
-  showCommand
+  showCommand,
+  friendsCommand,
+  notifyCommand,
+  startCommand
 } from './resolvers';
 
 export const commandExecuter: CommandExecuter = {
   help: helpCommand,
+  start: startCommand,
   clear: clearCommand,
   name: nameCommand,
-  bio: bioCommand,
+  desc: bioCommand,
   pending: pendingCommand,
   show: showCommand,
   random: randomCommand,
   prefs: prefsCommand,
+  friends: friendsCommand,
+  notify: notifyCommand
 };

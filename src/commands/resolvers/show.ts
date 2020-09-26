@@ -2,11 +2,9 @@ import { CommandStateResolver } from '../../models/commands';
 import { rank } from '../../services/ranker';
 import { InlineKeyboardButton } from 'node-telegram-bot-api';
 import { answerState } from './common/answer-state';
-import { IUser } from '../../models/user';
 
 interface IShowContext {
   lastShownId: number | undefined;
-  user: IUser;
 }
 
 export const showCommand: CommandStateResolver<'show'> = {
@@ -17,24 +15,21 @@ export const showCommand: CommandStateResolver<'show'> = {
     bem como um botão de "agora não".
     **/
 
-    const context = client.getCurrentContext<IShowContext>();
+    client.registerAction('show_person_command');
 
-    // facilita na hora de referenciar esse usuario
-    const userId = client.userId;
-
-    context.user = await client.db.user.get(userId);
+    const { currentUser, context } = client.getCurrentState<IShowContext>();
 
     // get all users (IDs) from the DB
-    const allUsers = await client.db.user.getAll();
+    const allUsers = await client.db.user.getAllIds();
 
     // Usuarios que podem aparecer para mim, de acordo com os dados do meu perfil
     const allowedUsers = allUsers.filter(user => {
-      const otherUserId = user._id;
-      return otherUserId !== userId &&
-        !context.user.pending.includes(otherUserId) &&
-        !context.user.invited.includes(otherUserId) &&
-        !context.user.connections.includes(otherUserId) &&
-        !context.user.rejects.includes(otherUserId);
+      const otherUserId = user;
+      return otherUserId !== client.userId &&
+        !currentUser.invited.includes(otherUserId) &&
+        !currentUser.rejects.includes(otherUserId) &&
+        !currentUser.pending.includes(otherUserId) &&
+        !currentUser.connections.includes(otherUserId);
     });
 
     if (allowedUsers.length === 0) {
@@ -44,16 +39,16 @@ export const showCommand: CommandStateResolver<'show'> = {
       return 'END';
     }
 
+    const allowedUsersData = await client.db.user.getAllFromList(allowedUsers);
+
     // Mapeia os usuarios aos seus interesses
     const usersInterests: { [userId: number]: string[] } = {};
-    for (const user of allowedUsers) {
-      const userData = await client.db.user.get(user._id);
-      if (!userData['rejects'].includes(userId)) {
-        usersInterests[user._id] = userData.interests;
+    for (const userData of allowedUsersData) {
+      if (!userData['rejects'].includes(client.userId)) {
+        usersInterests[userData._id] = userData.interests;
       }
-
     }
-    const target = rank(context.user.interests, usersInterests);
+    const target = rank(currentUser.interests, usersInterests);
 
     if (!target) {
       // Nao ha ninguem com as preferencias do usuario ainda

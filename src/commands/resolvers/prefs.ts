@@ -6,7 +6,6 @@ import { categories } from '../../data/categories';
 interface IPrefsContext {
   subMenu: string;
   interests: string[];
-  keyboardId: number;
 }
 
 const keyboardResponseText = 'Escolha suas categorias de interesse.\n' +
@@ -86,27 +85,25 @@ const buildKeyboard = (context: IPrefsContext) => {
 export const prefsCommand: CommandStateResolver<'prefs'> = {
   INITIAL: async (client) => {
 
-    const user = await client.db.user.get(client.userId);
-    const context = client.getCurrentContext<IPrefsContext>();
-    context.interests = user.interests;
+    const { context, currentUser } = client.getCurrentState<IPrefsContext>();
+    context.interests = currentUser.interests;
 
     const keyboard = buildKeyboard(context);
-    const message = await client.sendMessage(keyboardResponseText, {
+    client.sendMessage(keyboardResponseText, {
       reply_markup: {
         inline_keyboard: keyboard
       }
     });
 
-    context.keyboardId = message.message_id;
-
     return 'CHOOSING' as const;
   },
   CHOOSING: async (client, arg, originalArg) => {
-    const context = client.getCurrentContext<IPrefsContext>();
+    const { context } = client.getCurrentState<IPrefsContext>();
     if (arg === 'finish') {
       await client.db.user.edit(client.userId, { interests: context.interests });
-      client.deleteMessage(context.keyboardId);
-      client.sendMessage('Preferencias salvas!');
+      client.registerAction('edit_interests_command', { changed: true });
+      client.deleteMessage();
+      client.sendMessage('Seus interesses foram atualizados!');
       return 'END';
     }
     else if (arg.startsWith('open')) {
@@ -116,8 +113,9 @@ export const prefsCommand: CommandStateResolver<'prefs'> = {
       context.subMenu = '';
     }
     else if (arg === 'cancel') {
-      client.deleteMessage(context.keyboardId);
-      client.sendMessage('Preferências não salvas');
+      client.deleteMessage();
+      client.registerAction('edit_interests_command', { changed: false });
+      client.sendMessage('Ok! Não vou alterar seus interesses.');
       return 'END';
     }
     else if (arg.startsWith('toogle')) { // Arg is categoryId
@@ -133,12 +131,18 @@ export const prefsCommand: CommandStateResolver<'prefs'> = {
       /* eslint-disable max-len */
       const responseText = 'Por favor, clique em ENVIAR para terminar de atualizar as suas preferências.';
       /* eslint-enable max-len */
-      client.sendMessage(responseText);
+      client.sendMessage(responseText, undefined, { selfDestruct: 4000 });
       return 'CHOOSING';
     }
 
+    let subMenuText = '';
+
+    if (context.subMenu) {
+      subMenuText = `\nMostrando subcategorias de: ${context.subMenu}`;
+    }
+
     const keyboard = buildKeyboard(context);
-    client.editMessage(keyboardResponseText, {
+    client.editMessage(keyboardResponseText + subMenuText, {
       reply_markup: {
         inline_keyboard: keyboard
       }

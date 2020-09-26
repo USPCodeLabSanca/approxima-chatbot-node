@@ -1,29 +1,23 @@
 import { ApproximaClient } from '../../../services/client';
-import { IUser } from '../../../models/user';
 
 export const answerState = async (
   client: ApproximaClient, arg: string
 ): Promise<'END' | 'ANSWER'> => {
 
-  const context = client.getCurrentContext<{ lastShownId?: number, user: IUser }>();
+  const { context, currentUser } = client.getCurrentState<{ lastShownId?: number }>();
   const targetId = context.lastShownId;
 
   if (!targetId) {
-    throw Error('There should be an targetId here in ANSWER state of show command');
+    throw Error('There should be an targetId here in ANSWER state of show/random command');
   }
 
   delete context.lastShownId;
 
-  // facilita na hora de referenciar esse usuario
-  const userId = client.userId;
-  const user = context.user;
-
   if (arg === 'dismiss') {
-
-    user.rejects.push(targetId);
-
+    currentUser.rejects.push(targetId);
     // Saves in DB
-    client.db.user.edit(userId, { 'rejects': user.rejects });
+    client.db.user.edit(client.userId, { 'rejects': currentUser.rejects });
+    client.registerAction('answered_suggestion', { answer: arg });
 
     client.sendMessage('Sugestão rejeitada.');
 
@@ -36,15 +30,14 @@ export const answerState = async (
     return 'ANSWER';
   }
 
-  user.invited.push(targetId);
-
+  currentUser.invited.push(targetId);
   // Update my info on BD
-  client.db.user.edit(userId, { 'invited': user.invited });
+  client.db.user.edit(client.userId, { 'invited': currentUser.invited });
+  client.registerAction('answered_suggestion', { answer: arg });
 
   // Now, let's update info from the target user
   const targetData = await client.db.user.get(targetId);
-
-  targetData.pending.push(userId);
+  targetData.pending.push(client.userId);
 
   client.db.user.edit(targetId, { 'pending': targetData.pending });
 
@@ -53,6 +46,7 @@ export const answerState = async (
     'Utilize o comando /pending para vê-la.';
 
   const targetChat = targetData['chat_id'];
+
   client.sendMessage(targetMsg, undefined, { chatId: targetChat });
 
   client.sendMessage('Solicitação enviada.');

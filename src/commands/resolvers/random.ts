@@ -15,28 +15,25 @@ export const randomCommand: CommandStateResolver<'random'> = {
     de conexão deve existir, bem como um botão de "agora não".
     **/
 
-    const context = client.getCurrentContext<IRandomContext>();
-    // facilita na hora de referenciar esse usuario
-    const userId = client.userId;
+    client.registerAction('random_person_command');
+    const state = client.getCurrentState<IRandomContext>();
+    const currentUser = state.currentUser!;
+    const context = state.context;
 
-    context.user = await client.db.user.get(userId);
+    const allUser = await client.db.user.getAll();
 
-    // get all users (IDs) from the DB
-    const allUsers = await client.db.user.getAll();
-
-    const myAllowedUsers = allUsers.filter(user => {
-      const otherUserId = user._id;
-      return otherUserId !== userId &&
-        !context.user.pending.includes(otherUserId) &&
-        !context.user.invited.includes(otherUserId) &&
-        !context.user.connections.includes(otherUserId) &&
-        !context.user.rejects.includes(otherUserId);
+    const myAllowedUsers = allUser.filter(otherUser => {
+      return otherUser._id !== client.userId &&
+        !currentUser.invited.includes(otherUser._id) &&
+        !currentUser.rejects.includes(otherUser._id) &&
+        !currentUser.pending.includes(otherUser._id) &&
+        !currentUser.connections.includes(otherUser._id);
     });
 
     // Preciso, ainda, tirar aqueles que me tem em sua lista de rejects
     const finalAllowedUsers = [];
     for (const user of myAllowedUsers) {
-      if (!user.rejects.includes(userId)) {
+      if (!user.rejects.includes(user._id)) {
         finalAllowedUsers.push(user);
       }
     }

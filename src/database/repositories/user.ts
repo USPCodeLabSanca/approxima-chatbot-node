@@ -14,23 +14,30 @@ export class UserRepository {
   getAll = async (): Promise<IUser[]> => {
     return this.usersCollection.find().toArray();
   }
+  getAllIds = async (): Promise<number[]> => {
+    return this.usersCollection.find().project({}).toArray() as any;
+  }
 
   get = async (userId: number): Promise<IUser> => {
     const user = await this.usersCollection.findOne({ _id: userId });
     if (!user) {
-      // TODO: fazer com que essa funcao seja chamada somente se o usuario existe
-      // TODO: fazer o setup inicial do usuario
-      throw Error('User should exsits');
+      throw Error('User should exist');
     }
     return user;
   }
 
   create = async (newUser: IUser) => {
-    const user = await this.get(newUser._id);
-    if (user) {
-      console.error('User already exists');
-      return;
+    try {
+      const user = await this.get(newUser._id);
+      if (user) {
+        console.error('User already exists');
+        return;
+      }
     }
+    catch {
+      console.log('This user does not exist... we\'re fine.');
+    }
+
     return this.usersCollection.insertOne(newUser);
   }
 
@@ -41,5 +48,10 @@ export class UserRepository {
       return;
     }
     return this.usersCollection.updateOne({ _id: userId }, { $set: user });
+  }
+
+  getAllFromList = async (userIdList: number[]): Promise<IUser[]> => {
+    const query = { '_id': { '$in': userIdList } };
+    return this.usersCollection.find(query).toArray();
   }
 }

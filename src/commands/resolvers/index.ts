@@ -6,3 +6,6 @@ export { showCommand } from './show';
 export { nameCommand } from './name';
 export { bioCommand } from './bio';
 export { clearCommand } from './clear';
+export { friendsCommand } from './friends';
+export { startCommand } from './start';
+export { notifyCommand } from './notify';
