@@ -31,6 +31,8 @@ export const runCommand = async (
   if (nextState === 'END') {
     state.currentState = 'INITIAL';
     state.currentCommand = '';
+    clearTimeout(state.callbackTimeoutId);
+    state.callbackTimeoutId = undefined;
   }
   else {
     state.currentState = nextState;

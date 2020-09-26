@@ -134,8 +134,14 @@ export const prefsCommand: CommandStateResolver<'prefs'> = {
       return 'CHOOSING';
     }
 
+    let subMenuText = '';
+
+    if (context.subMenu) {
+      subMenuText = `\nMostrando subcategorias de: ${context.subMenu}`;
+    }
+
     const keyboard = buildKeyboard(context);
-    client.editMessage(keyboardResponseText, {
+    client.editMessage(keyboardResponseText + subMenuText, {
       reply_markup: {
         inline_keyboard: keyboard
       }

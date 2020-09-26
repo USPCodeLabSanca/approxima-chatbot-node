@@ -6,6 +6,7 @@ import {
 import { runCommand } from '../commands/run-command';
 import { ApproximaClient } from '../services/client';
 import { IUser } from '../models/user';
+import { stateMachine } from '../commands/command-state-machine';
 
 const botName = 'approxima_bot';
 
@@ -42,13 +43,6 @@ export const onText = async (client: ApproximaClient, msg: TelegramBot.Message):
 
   const state = client.getCurrentState();
 
-  state.currentUser = user as IUser;
-
-  if (cleanMsgText === 'reset') {
-    client.resetCurrentState();
-    return;
-  }
-
   if (state.endKeyboardCommandOnText) {
 
     const {
@@ -57,10 +51,28 @@ export const onText = async (client: ApproximaClient, msg: TelegramBot.Message):
     } = state.endKeyboardCommandOnText;
 
     if (deleteKeyboard && keyboardId) {
-      client.deleteMessage(state.endKeyboardCommandOnText.keyboardId);
+      await client.deleteMessage(state.endKeyboardCommandOnText.keyboardId);
     }
 
     client.resetCurrentState();
+  }
+
+  state.currentUser = user as IUser;
+
+  if (cleanMsgText == 'debug') {
+    const states = Object.entries(stateMachine.stateMachine).map(([id, entry]) => {
+      // eslint-disable-next-line
+      const { currentUser, ...rest } = entry;
+      return { id, ...rest };
+    });
+    client.sendMessage(JSON.stringify(states, null, 2));
+    return;
+  }
+
+  if (cleanMsgText === 'reset') {
+    client.resetCurrentState();
+    client.sendMessage('Estado resetado com sucesso!');
+    return;
   }
 
   const emptyCommandExec = emptyCommandRegex.exec(msgText);

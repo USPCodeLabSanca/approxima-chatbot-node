@@ -105,7 +105,7 @@ export class ApproximaClient {
    * If it is not present, the last message will be deleted */
   deleteMessage = (messageId?: string | number) => {
     messageId = messageId ? String(messageId) : String(this.getMessageId());
-    telegramBot.deleteMessage(this.userId, messageId);
+    return telegramBot.deleteMessage(this.userId, messageId);
   }
 
   answerCallbackQuery = () => {

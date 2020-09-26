@@ -1,6 +1,7 @@
 import { isProd } from '../../helpers';
 import { CommandStateResolver } from '../../models/commands';
 import { ApproximaClient } from '../../services/client';
+import { IUser } from '../../models/user';
 
 interface IFriendsContext {
   pagesText: string[];
@@ -98,6 +99,14 @@ const makeButtons = (curPage: number, final_page: number) => {
   );
 };
 
+const correctFriendsOrder = (listOfFriendsInfo: IUser[], correctIdOrder: number[]): IUser[] => {
+  function sortFriends(f1: IUser, f2: IUser) {
+    return correctIdOrder.indexOf(f1._id) - correctIdOrder.indexOf(f2._id);
+  }
+
+  return listOfFriendsInfo.sort(sortFriends);
+};
+
 const friendsPaginator = async (client: ApproximaClient, connections: number[]) => {
   // Connections is an iterable (not guaranteed to be a list)
 
@@ -113,20 +122,20 @@ const friendsPaginator = async (client: ApproximaClient, connections: number[]) 
 
   let curPageText = '';
 
-  // Adding friends info to the message
-  for (const user of connections) {
-    // Get their info
-    // TODO: nao fazer um get dentro de um for please
-    const userInfo = await client.db.user.get(user);
+  let connectionsInfo = await client.db.user.getAllFromList(connections);
 
+  connectionsInfo = correctFriendsOrder(connectionsInfo, connections);
+
+  // Adding friends info to the message
+  for (const userInfo of connectionsInfo) {
     // Format their info on a string
-    let userInfoTxt = `${userInfo['name']} \n` +
-      `${userInfo['username']} \n\n` +
+    let userInfoTxt = `${userInfo['name']}\n` +
+      `Clique aqui para conversar --> ${userInfo['username']}\n\n` +
       `"${userInfo['bio']}"`;
 
     // If userInfoTxt is greater than the limit (+ the divider), TRUNCATE IT!
-    if (userInfoTxt.length > msgLimit - divider.length) {
-      userInfoTxt = userInfoTxt.substr(0, msgLimit - 3) + '...';
+    if (userInfoTxt.length > (msgLimit - divider.length)) {
+      userInfoTxt = userInfoTxt.substr(0, msgLimit - divider.length - 4) + '..."';
     }
     userInfoTxt += divider;
 
@@ -161,11 +170,7 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
       const response = 'Você ainda não possui nenhuma conexão!\n' +
         'Que tal usar o comando /show para conhecer alguém novo?';
 
-      const message = await client.sendMessage(response);
-      state.endKeyboardCommandOnText = {
-        deleteKeyboard: true,
-        keyboardId: message.message_id
-      };
+      await client.sendMessage(response);
 
       return 'END';
     }
@@ -199,13 +204,18 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
     const endDate = Date.now();
     client.registerAction('friends_command', { ellapsed_time: endDate - beginDate });
 
-    client.sendMessage(response, {
+    const message = await client.sendMessage(response, {
       reply_markup: {
         inline_keyboard: [
           buttonPairs, [{ text: 'Fechar', callback_data: 'close' }]
         ]
       }
     });
+
+    state.endKeyboardCommandOnText = {
+      deleteKeyboard: true,
+      keyboardId: message.message_id
+    };
 
     return 'CHOOSE_PAGE';
   },

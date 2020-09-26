@@ -33,7 +33,6 @@ export const nameCommand: CommandStateResolver<'name'> = {
 
   },
   NEW_NAME: (client, arg, originalArg) => {
-    console.log('arg', arg);
     if (arg === '.') {
       client.sendMessage('Ok! Não vou alterar seu nome.');
       return 'END';

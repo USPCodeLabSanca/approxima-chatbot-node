@@ -8,8 +8,12 @@ interface IStartContext {
 export const startCommand: CommandStateResolver<'start'> = {
   INITIAL: async (client) => {
     const { currentUser: user } = client.getCurrentState();
+    let newUser = false;
 
     if (user) {
+
+      client.registerAction('start_command', { new_user: newUser, user_without_username: false });
+
       const message = 'É muito bom ter você de volta! Bora começar a usar o Approxima :)\n' +
         'Me diz: o que você quer fazer agora?\n\n' +
         'Use /help para uma lista dos comandos disponíveis.\n';
@@ -17,7 +21,12 @@ export const startCommand: CommandStateResolver<'start'> = {
       return 'END';
     }
 
+    newUser = true;
+
     if (!client.username) {
+
+      client.registerAction('start_command', { new_user: newUser, user_without_username: true });
+
       const message = 'Parece que você não possui um Nome de Usuário do Telegram ainda :(\n' +
         'Infelizmente, eu não posso completar o seu registro se você não tiver um, ' +
         'pois será a única forma dos outros usuários entrarem em contato com você.\n\n' +
@@ -30,7 +39,7 @@ export const startCommand: CommandStateResolver<'start'> = {
       return 'END';
     }
 
-    client.registerAction('start_command');
+    client.registerAction('start_command', { new_user: newUser, user_without_username: false });
 
     let message = 'Muito prazer! Vamos começar o seu registro no Approxima!';
     client.sendMessage(message);

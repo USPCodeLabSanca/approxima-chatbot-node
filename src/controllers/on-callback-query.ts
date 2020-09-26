@@ -1,5 +1,6 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { runCommand } from '../commands/run-command';
+import { msInAMinute } from '../helpers/date';
 import { ApproximaClient } from '../services/client';
 
 export const onCallbackQuery = async (
@@ -10,11 +11,15 @@ export const onCallbackQuery = async (
 
   const state = client.getCurrentState();
 
+  client.answerCallbackQuery();
+
   if (state.currentCommand === '') {
     return;
   }
 
-  client.answerCallbackQuery();
+  client.getCurrentState().callbackTimeoutId = setTimeout(() => {
+    client.resetCurrentState();
+  }, msInAMinute * 1.2) as any;
 
   runCommand(client, state.currentCommand, callBackData);
 };

@@ -9,6 +9,7 @@ import {
   randomCommand,
   showCommand,
   friendsCommand,
+  notifyCommand,
   startCommand
 } from './resolvers';
 
@@ -22,5 +23,6 @@ export const commandExecuter: CommandExecuter = {
   show: showCommand,
   random: randomCommand,
   prefs: prefsCommand,
-  friends: friendsCommand
+  friends: friendsCommand,
+  notify: notifyCommand
 };

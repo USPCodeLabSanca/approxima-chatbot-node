@@ -20,7 +20,7 @@ export const bioCommand: CommandStateResolver<'desc'> = {
     const { currentUser } = client.getCurrentState<IBioContext>();
 
     if (!originalArg) {
-      const response = `Sua descrição atual é: ${currentUser.bio} \n\n` +
+      const response = `Sua descrição atual é: \n\n${currentUser.bio}\n\n` +
         'Agora, manda pra mim a sua nova descrição!\n' +
         'Envie um ponto (.) caso tenha desistido de mudá-la.';
       client.sendMessage(response);

@@ -19,25 +19,21 @@ export const randomCommand: CommandStateResolver<'random'> = {
     const state = client.getCurrentState<IRandomContext>();
     const currentUser = state.currentUser!;
     const context = state.context;
-    // facilita na hora de referenciar esse usuario
-    const userId = client.userId;
 
-    // get all users (IDs) from the DB
-    const allUsers = await client.db.user.getAll();
+    const allUser = await client.db.user.getAll();
 
-    const myAllowedUsers = allUsers.filter(user => {
-      const otherUserId = user._id;
-      return otherUserId !== userId &&
-        !currentUser.pending.includes(otherUserId) &&
-        !currentUser.invited.includes(otherUserId) &&
-        !currentUser.connections.includes(otherUserId) &&
-        !currentUser.rejects.includes(otherUserId);
+    const myAllowedUsers = allUser.filter(otherUser => {
+      return otherUser._id !== client.userId &&
+        !currentUser.invited.includes(otherUser._id) &&
+        !currentUser.rejects.includes(otherUser._id) &&
+        !currentUser.pending.includes(otherUser._id) &&
+        !currentUser.connections.includes(otherUser._id);
     });
 
     // Preciso, ainda, tirar aqueles que me tem em sua lista de rejects
     const finalAllowedUsers = [];
     for (const user of myAllowedUsers) {
-      if (!user.rejects.includes(userId)) {
+      if (!user.rejects.includes(user._id)) {
         finalAllowedUsers.push(user);
       }
     }

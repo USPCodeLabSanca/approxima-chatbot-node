@@ -9,5 +9,6 @@ export const commandsAndStates = {
   random: ['ANSWER'],
   pending: ['ANSWER'],
   prefs: ['CHOOSING'],
-  friends: ['CHOOSE_PAGE']
+  friends: ['CHOOSE_PAGE'],
+  notify: ['SEND']
 } as const;

@@ -8,20 +8,16 @@ export const answerState = async (
   const targetId = context.lastShownId;
 
   if (!targetId) {
-    throw Error('There should be an targetId here in ANSWER state of show command');
+    throw Error('There should be an targetId here in ANSWER state of show/random command');
   }
 
   delete context.lastShownId;
 
-  // facilita na hora de referenciar esse usuario
-  const userId = client.userId;
-
   if (arg === 'dismiss') {
-    client.registerAction('answered_suggestion', { answer: arg });
     currentUser.rejects.push(targetId);
-
     // Saves in DB
-    client.db.user.edit(userId, { 'rejects': currentUser.rejects });
+    client.db.user.edit(client.userId, { 'rejects': currentUser.rejects });
+    client.registerAction('answered_suggestion', { answer: arg });
 
     client.sendMessage('Sugestão rejeitada.');
 
@@ -34,16 +30,14 @@ export const answerState = async (
     return 'ANSWER';
   }
 
-  client.registerAction('answered_suggestion', { answer: arg });
   currentUser.invited.push(targetId);
-
   // Update my info on BD
-  client.db.user.edit(userId, { 'invited': currentUser.invited });
+  client.db.user.edit(client.userId, { 'invited': currentUser.invited });
+  client.registerAction('answered_suggestion', { answer: arg });
 
   // Now, let's update info from the target user
   const targetData = await client.db.user.get(targetId);
-
-  targetData.pending.push(userId);
+  targetData.pending.push(client.userId);
 
   client.db.user.edit(targetId, { 'pending': targetData.pending });
 

@@ -16,24 +16,20 @@ export const showCommand: CommandStateResolver<'show'> = {
     **/
 
     client.registerAction('show_person_command');
-    const state = client.getCurrentState<IShowContext>();
-    const context = state.context;
-    const currentUser = state.currentUser!;
 
-    // facilita na hora de referenciar esse usuario
-    const userId = client.userId;
+    const { currentUser, context } = client.getCurrentState<IShowContext>();
 
     // get all users (IDs) from the DB
-    const allUsers = await client.db.user.getAll();
+    const allUsers = await client.db.user.getAllIds();
 
     // Usuarios que podem aparecer para mim, de acordo com os dados do meu perfil
     const allowedUsers = allUsers.filter(user => {
-      const otherUserId = user._id;
-      return otherUserId !== userId &&
-        !currentUser.pending.includes(otherUserId) &&
+      const otherUserId = user;
+      return otherUserId !== client.userId &&
         !currentUser.invited.includes(otherUserId) &&
-        !currentUser.connections.includes(otherUserId) &&
-        !currentUser.rejects.includes(otherUserId);
+        !currentUser.rejects.includes(otherUserId) &&
+        !currentUser.pending.includes(otherUserId) &&
+        !currentUser.connections.includes(otherUserId);
     });
 
     if (allowedUsers.length === 0) {
@@ -43,14 +39,14 @@ export const showCommand: CommandStateResolver<'show'> = {
       return 'END';
     }
 
+    const allowedUsersData = await client.db.user.getAllFromList(allowedUsers);
+
     // Mapeia os usuarios aos seus interesses
     const usersInterests: { [userId: number]: string[] } = {};
-    for (const user of allowedUsers) {
-      const userData = await client.db.user.get(user._id);
-      if (!userData['rejects'].includes(userId)) {
-        usersInterests[user._id] = userData.interests;
+    for (const userData of allowedUsersData) {
+      if (!userData['rejects'].includes(client.userId)) {
+        usersInterests[userData._id] = userData.interests;
       }
-
     }
     const target = rank(currentUser.interests, usersInterests);
 

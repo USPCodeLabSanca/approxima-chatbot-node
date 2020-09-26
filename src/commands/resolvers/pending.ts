@@ -1,9 +1,11 @@
 import { InlineKeyboardButton } from 'node-telegram-bot-api';
 import { removeByValue } from '../../helpers/array';
 import { CommandStateResolver } from '../../models/commands';
+import { IUser } from '../../models/user';
 
 interface IPendingContext {
   lastShownId?: number;
+  targetData?: IUser;
 }
 
 export const pendingCommand: CommandStateResolver<'pending'> = {
@@ -17,9 +19,6 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
     client.registerAction('pending_command');
     const { context, currentUser } = client.getCurrentState<IPendingContext>();
 
-    // facilita na hora de referenciar esse usuario
-    const userId = client.userId;
-
     if (currentUser.pending.length === 0) {
       client.sendMessage('Você não possui novas solicitações de conexão.');
       return 'END';
@@ -29,21 +28,10 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
     const target = currentUser.pending.pop()!;
 
     const targetData = await client.db.user.get(target);
-    const targetBio = targetData.bio;
 
     // Avisa no contexto que essa pessoa foi a ultima a ser exibida para o usuario (ajuda nas callback queries)
     context.lastShownId = target;
-
-    // Salvo no BD o novo array de 'pending'
-    client.db.user.edit(userId, { 'pending': currentUser.pending });
-
-    // Me retiro da lista de "invited" do outro usuario
-    const targetInvited = targetData.invited;
-    removeByValue(targetInvited, userId);
-
-    client.db.user.edit(target, { 'invited': targetInvited });
-
-    // MENSAGEM DO BOT
+    context.targetData = targetData;
 
     const keyboard: InlineKeyboardButton[][] = [[
       { text: 'Aceitar', callback_data: 'accept' },
@@ -51,7 +39,7 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
     ]];
 
     const text = 'A seguinte pessoa quer se conectar a você:\n\n' +
-      `"${targetBio}"`;
+      `"${targetData.bio}"`;
 
     client.sendMessage(text, { reply_markup: { inline_keyboard: keyboard } });
 
@@ -67,15 +55,22 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
 
     delete context.lastShownId;
 
-    // facilita na hora de referenciar esse usuario
-    const userId = client.userId;
+    // Salvo no BD o novo array de 'pending'
+    client.db.user.edit(client.userId, { 'pending': currentUser.pending });
+
+    // Me retiro da lista de "invited" do outro usuario
+    const targetInvited = context.targetData!.invited;
+    delete context.targetData;
+    removeByValue(targetInvited, client.userId);
+
+    client.db.user.edit(targetId, { 'invited': targetInvited });
 
     if (arg === 'reject') {
       client.registerAction('answered_pending', { answer: arg });
       currentUser.rejects.push(targetId);
 
       // Saves in DB
-      client.db.user.edit(userId, { 'rejects': currentUser.rejects });
+      client.db.user.edit(client.userId, { 'rejects': currentUser.rejects });
 
       client.sendMessage('Pedido de conexão rejeitado.');
 
@@ -95,13 +90,13 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
     currentUser.connections.push(targetId);
 
     // Update my info on BD
-    client.db.user.edit(userId, { 'connections': currentUser.connections });
+    client.db.user.edit(client.userId, { 'connections': currentUser.connections });
 
     // Update their info on BD
 
     const targetData = await client.db.user.get(targetId);
 
-    targetData.connections.push(userId);
+    targetData.connections.push(client.userId);
 
     client.db.user.edit(targetId, { 'connections': targetData.connections });
 
@@ -112,7 +107,6 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
     const textTarget = `${currentUser.username} acaba de aceitar seu pedido de conexão! ` +
       'Use o comando /friends para checar.';
 
-    console.log('targetChat', targetChat);
     await client.sendMessage(textTarget, undefined, { chatId: targetChat });
 
     const myText = `Parabéns! Você acaba de se conectar com ${targetData.username}! ` +

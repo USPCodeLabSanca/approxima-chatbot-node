@@ -8,3 +8,4 @@ export { bioCommand } from './bio';
 export { clearCommand } from './clear';
 export { friendsCommand } from './friends';
 export { startCommand } from './start';
+export { notifyCommand } from './notify';

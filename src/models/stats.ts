@@ -18,7 +18,9 @@ const stateActions = [
   'answered_pending',
   'edit_desc_command',
   'random_person_command',
-  'pending_command'
+  'pending_command',
+  'notify_command',
+  'admin_notified'
 ] as const;
 
 export type StatsActions = typeof stateActions[number];

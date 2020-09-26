@@ -14,8 +14,16 @@ export class UserController {
     return this.userRepository.getAll();
   }
 
+  getAllIds = async (): Promise<number[]> => {
+    return this.userRepository.getAllIds();
+  }
+
   get = async (userId: number): Promise<IUser> => {
     return this.userRepository.get(userId);
+  }
+
+  getAllFromList = async (userIdList: number[]): Promise<IUser[]> => {
+    return this.userRepository.getAllFromList(userIdList);
   }
 
   create = async (newUser: IUser) => {
