@@ -2,8 +2,6 @@ import { CommandStateResolver } from '../../models/commands';
 
 export const notifyCommand: CommandStateResolver<'notify'> = {
   INITIAL: (client) => {
-    // facilita na hora de referenciar esse usuario
-
     let isAdmin = false;
     let adminName = '';
 
