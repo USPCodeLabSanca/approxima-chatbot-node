@@ -28,6 +28,7 @@ class CommandStateMachine {
   }
 
   resetState = (userId: number) => {
+    this.stateMachine[userId] = <ICommandStateMachineUserEntry<any>>{};
     this.stateMachine[userId].context = {};
     this.stateMachine[userId].currentUser = undefined as any as IUser;
     this.stateMachine[userId].currentCommand = '';
