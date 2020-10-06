@@ -8,6 +8,7 @@ import { isProd } from './helpers';
 if (
   !process.env.BOT_TOKEN ||
   !process.env.CONNECTION_STRING ||
+  !process.env.ADMINS ||
   (isProd && !process.env.HEROKU_URL)
 ) {
   throw Error('Please set environment variables!');
