@@ -16,7 +16,8 @@ export class UserRepository {
   }
 
   getAllIds = async (): Promise<number[]> => {
-    return this.usersCollection.find().project({}).toArray() as any;
+    const allUsersData = await this.usersCollection.find().toArray();
+    return allUsersData.map(user => user._id);
   }
 
   get = async (userId: number): Promise<IUser | null> => {
