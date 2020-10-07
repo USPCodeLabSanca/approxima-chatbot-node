@@ -4,25 +4,27 @@ import {
   helpCommand,
   pendingCommand,
   prefsCommand,
-  nameCommand,
-  bioCommand,
+  editCommand,
   randomCommand,
   showCommand,
   friendsCommand,
   notifyCommand,
-  startCommand
+  startCommand,
+  pokeCommand,
+  deleteCommand
 } from './resolvers';
 
 export const commandExecuter: CommandExecuter = {
   help: helpCommand,
   start: startCommand,
   clear: clearCommand,
-  name: nameCommand,
-  desc: bioCommand,
+  edit: editCommand,
+  delete: deleteCommand,
   pending: pendingCommand,
   show: showCommand,
   random: randomCommand,
   prefs: prefsCommand,
   friends: friendsCommand,
+  poke: pokeCommand,
   notify: notifyCommand
 };

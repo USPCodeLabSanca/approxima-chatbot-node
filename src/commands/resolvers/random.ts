@@ -69,5 +69,6 @@ export const randomCommand: CommandStateResolver<'random'> = {
 
     return 'ANSWER';
   },
+
   ANSWER: answerState
 };

@@ -10,4 +10,5 @@ export interface IUser {
   invited: number[];
   pending: number[];
   connections: number[];
+  pokes?: number[];
 }
