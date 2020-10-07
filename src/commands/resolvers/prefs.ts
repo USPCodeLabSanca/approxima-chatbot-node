@@ -101,7 +101,7 @@ export const prefsCommand: CommandStateResolver<'prefs'> = {
     const { context } = client.getCurrentState<IPrefsContext>();
     if (arg === 'finish') {
       client.db.user.edit(client.userId, { interests: context.interests });
-      client.registerAction('edit_interests_command', { changed: true });
+      client.registerAction('prefs_command', { changed: true });
       client.deleteMessage();
       client.sendMessage('Seus interesses foram atualizados!');
       return 'END';
@@ -114,7 +114,7 @@ export const prefsCommand: CommandStateResolver<'prefs'> = {
     }
     else if (arg === 'cancel') {
       client.deleteMessage();
-      client.registerAction('edit_interests_command', { changed: false });
+      client.registerAction('prefs_command', { changed: false });
       client.sendMessage('Ok! Não vou alterar seus interesses.');
       return 'END';
     }
