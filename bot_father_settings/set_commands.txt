@@ -1,10 +1,11 @@
+edit - Edite o seu nome ou a sua descrição!
 prefs - Selecione suas categorias de interesse.
-show - Mostra uma pessoa que tem interesses em comum.
-random - Mostra uma pessoa aleatória.
-clear - Limpa a lista de "rejeitados".
-pending - Mostra uma solicitação que você possui e ainda não respondeu.
-friends - Mostra todas as suas conexões.
-name - Troca o seu nome.
-desc - Troca a sua descrição.
-help - Mostra os comandos disponíveis.
-reset - Reseta o estado do bot.
+show - Encontre uma pessoa com interesses em comum.
+random - Encontre uma pessoa aleatória.
+clear - Limpe a sua lista de "rejeitados".
+pending - Veja as suas solicitações de conexão.
+friends - Veja todas as suas conexões!
+poke - Registre a intenção de conversar com uma conexão.
+delete - Remova uma conexão ou descadastre-se.
+help - Veja os comandos disponíveis.
+reset - Resete o estado do bot.
