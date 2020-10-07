@@ -24,6 +24,10 @@ export class UserRepository {
     return this.usersCollection.findOne({ _id: userId });
   }
 
+  getByUsername = async (username: string): Promise<IUser | null> => {
+    return this.usersCollection.findOne({ username });
+  }
+
   getAllFromList = async (userIdList: number[]): Promise<IUser[]> => {
     const query = { '_id': { '$in': userIdList } };
     return this.usersCollection.find(query).toArray();

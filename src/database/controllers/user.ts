@@ -47,6 +47,19 @@ export class UserController {
     }
   }
 
+  getByUsername = async (username: string): Promise<IUser | undefined> => {
+    try {
+      const data = await this.userRepository.getByUsername(username);
+      if (!data) {
+        throw new Error('User not found');
+      }
+      return data;
+    }
+    catch {
+      return undefined;
+    }
+  }
+
   getAllFromList = async (userIdList: number[]): Promise<IUser[]> => {
     try {
       return await this.userRepository.getAllFromList(userIdList);
