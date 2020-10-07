@@ -6,6 +6,7 @@ import { IUser } from '../../models/user';
 interface IRandomContext {
   user: IUser;
   lastShownId?: number;
+  messageId: number;
 }
 
 export const randomCommand: CommandStateResolver<'random'> = {
@@ -60,8 +61,11 @@ export const randomCommand: CommandStateResolver<'random'> = {
 
     const text = `"${targetBio}"`;
 
-    client.sendMessage(
-      text, { reply_markup: { inline_keyboard: keyboard } });
+    const message = await client.sendMessage(
+      text, { reply_markup: { inline_keyboard: keyboard } }
+    );
+
+    context.messageId = message.message_id;
 
     return 'ANSWER';
   },

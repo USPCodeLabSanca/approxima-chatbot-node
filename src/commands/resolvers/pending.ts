@@ -6,6 +6,7 @@ import { IUser } from '../../models/user';
 interface IPendingContext {
   lastShownId?: number;
   targetData?: IUser;
+  messageId: number;
 }
 
 export const pendingCommand: CommandStateResolver<'pending'> = {
@@ -41,7 +42,8 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
     const text = 'A seguinte pessoa quer se conectar a você:\n\n' +
       `"${targetData.bio}"`;
 
-    client.sendMessage(text, { reply_markup: { inline_keyboard: keyboard } });
+    const message = await client.sendMessage(text, { reply_markup: { inline_keyboard: keyboard } });
+    context.messageId = message.message_id;
 
     return 'ANSWER';
   },
@@ -72,7 +74,8 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
       // Saves in DB
       client.db.user.edit(client.userId, { 'rejects': currentUser.rejects });
 
-      client.sendMessage('Pedido de conexão rejeitado.');
+      await client.sendMessage('Pedido de conexão rejeitado.');
+      client.deleteMessage(context.messageId);
 
       return 'END';
     }
@@ -87,7 +90,7 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
     client.registerAction('answered_pending', { answer: arg });
 
     // Register the new connection
-    currentUser.connections.push(targetId);
+    currentUser.connections.unshift(targetId);
 
     // Update my info on BD
     client.db.user.edit(client.userId, { 'connections': currentUser.connections });
@@ -96,7 +99,7 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
 
     const targetData = await client.db.user.get(targetId);
 
-    targetData.connections.push(client.userId);
+    targetData.connections.unshift(client.userId);
 
     client.db.user.edit(targetId, { 'connections': targetData.connections });
 
@@ -108,6 +111,7 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
       'Use o comando /friends para checar.';
 
     await client.sendMessage(textTarget, undefined, { chatId: targetChat });
+    client.deleteMessage(context.messageId);
 
     const myText = `Parabéns! Você acaba de se conectar com ${targetData.username}! ` +
       'Que tal dar um "oi" pra elu? :)\n' +

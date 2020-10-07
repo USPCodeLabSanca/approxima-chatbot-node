@@ -44,7 +44,6 @@ export const onText = async (client: ApproximaClient, msg: TelegramBot.Message):
   const state = client.getCurrentState();
 
   if (state.endKeyboardCommandOnText) {
-
     const {
       deleteKeyboard,
       keyboardId

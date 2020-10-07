@@ -5,6 +5,7 @@ import { answerState } from './common/answer-state';
 
 interface IShowContext {
   lastShownId: number | undefined;
+  messageId: number;
 }
 
 export const showCommand: CommandStateResolver<'show'> = {
@@ -76,9 +77,10 @@ export const showCommand: CommandStateResolver<'show'> = {
 
     const text = `"${targetBio}"`;
 
-    client.sendMessage(
+    const message = await client.sendMessage(
       text, { reply_markup: { inline_keyboard: keyboard } }
     );
+    context.messageId = message.message_id;
 
     return 'ANSWER';
   },

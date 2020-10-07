@@ -14,7 +14,7 @@ const makeButtons = (curPage: number, final_page: number) => {
 
   const buttonPairs: any[] = [];
 
-  // there is only one page, button are not neede
+  // there is only one page, button are not needed
   if (final_page == 0) {
     return buttonPairs; // empty
   }
@@ -108,8 +108,6 @@ const correctFriendsOrder = (listOfFriendsInfo: IUser[], correctIdOrder: number[
 };
 
 const friendsPaginator = async (client: ApproximaClient, connections: number[]) => {
-  // Connections is an iterable (not guaranteed to be a list)
-
   const resultingPages = [];
 
   const divider = '\n\n' +
@@ -154,7 +152,7 @@ const friendsPaginator = async (client: ApproximaClient, connections: number[]) 
 export const friendsCommand: CommandStateResolver<'friends'> = {
   INITIAL: async (client) => {
     /*
-     friends => Mostra o contato: any(@ do Tele) de todas as pessoas com que o usuário
+     friends => Mostra o contato (@ do Tele) de todas as pessoas com que o usuário
      já se conectou.
      */
 
@@ -174,8 +172,8 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
 
       return 'END';
     }
-    // Se chegou ate aqui é porque ele tem conexoes
 
+    // Se chegou ate aqui é porque ele tem conexoes
 
     const connectionsSet = isProd ?
       // @ts-ignore

@@ -4,14 +4,15 @@ export const answerState = async (
   client: ApproximaClient, arg: string
 ): Promise<'END' | 'ANSWER'> => {
 
-  const { context, currentUser } = client.getCurrentState<{ lastShownId?: number }>();
+  const {
+    context,
+    currentUser
+  } = client.getCurrentState<{ lastShownId?: number, messageId: number }>();
   const targetId = context.lastShownId;
 
   if (!targetId) {
     throw Error('There should be an targetId here in ANSWER state of show/random command');
   }
-
-  delete context.lastShownId;
 
   if (arg === 'dismiss') {
     currentUser.rejects.push(targetId);
@@ -25,7 +26,11 @@ export const answerState = async (
   }
   else if (arg !== 'connect') {
     client.sendMessage(
-      'Você deve decidir a sua ação acerca do usuário acima antes de prosseguir.'
+      'Você deve decidir a sua ação acerca do usuário acima antes de prosseguir.',
+      undefined,
+      {
+        selfDestruct: 3000,
+      }
     );
     return 'ANSWER';
   }
@@ -48,6 +53,7 @@ export const answerState = async (
   const targetChat = targetData['chat_id'];
 
   client.sendMessage(targetMsg, undefined, { chatId: targetChat });
+  client.deleteMessage(context.messageId);
 
   client.sendMessage('Solicitação enviada.');
 
