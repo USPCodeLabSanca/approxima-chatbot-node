@@ -14,7 +14,7 @@ export class StatsController {
   registerAction = async (actionName: StatsActions, userId: number, data?: any) => {
     // Additional data must be an object if not undefined
     if (data && typeof data !== 'object') {
-      throw Error('"additional_data" must be an object.');
+      throw Error('Additional data (3rd argument) in registerAction() must be an object.');
     }
     // Make sure that everything is ok with the Database before proceeding
     const todayDateString = getTodayString();
