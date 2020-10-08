@@ -12,12 +12,13 @@ const handleUserToPoke = async (client: ApproximaClient, username: string) => {
   const { currentUser, context } = client.getCurrentState<IPokeContext>();
   if (!username.startsWith('@')) username = '@' + username;
   if (currentUser.username === username) {
-    client.sendMessage('Se liga, não tem como voce dar poke em voce mesmo'); // TODO: fix this
+    client.sendMessage('Você não pode dar poke em si mesmo!');
     return 'CHOOSE_USER';
   }
   const user = await client.db.user.getByUsername(username);
   if (!user) {
-    client.sendMessage('Esse usuario não existe mano, se liga'); // TODO: fix this
+    client.sendMessage('O usuário solicitado não existe :/');
+    client.registerAction('poke_command', { target: username, exists: false });
     return 'CHOOSE_USER';
   }
   context.pokedUser = user;
@@ -27,12 +28,10 @@ const handleUserToPoke = async (client: ApproximaClient, username: string) => {
 };
 
 const sendChooseModeMessage = (client: ApproximaClient) => {
-
-  // TODO: fix this
   /* eslint-disable max-len */
   const response = 'Você tem duas opções:\n' +
-    '- Esperar que essa pessoa também dê o comando /poke e direcione-o a você (ela não saberá que você deu o comando), o que pode não acontecer\n' +
-    '- Notificar a pessoa que você deu o comando / poke e direcionou para ela(ou seja, avisando que você quer conversar), o que aumenta a chance de vocês conversarem\n\n' +
+    '- Esperar que essa pessoa também dê o comando /poke e direcione-o a você (ela não saberá que você deu o comando), o que pode não acontecer;\n' +
+    '- Notificar a pessoa que você deu o comando /poke e o direcionou a ela (ou seja, avisando que você quer conversar), o que aumenta a chance de vocês conversarem.\n\n' +
     'Qual você quer usar?';
   /* eslint-enable max-len */
 
@@ -58,17 +57,16 @@ const sendChooseModeMessage = (client: ApproximaClient) => {
 
 export const pokeCommand: CommandStateResolver<'poke'> = {
   INITIAL: async (client, _arg, originalArg) => {
-
     // Se tiver um argumento o usuario ja escolheu alguem para dar poke
     if (originalArg) {
       return handleUserToPoke(client, originalArg);
     }
 
-    client.sendMessage('Legal, me manda o nome de quem voce quer dar poke');
+    // eslint-disable-next-line
+    client.sendMessage('Me manda o username (@) da pessoa com quem você quer conversar :)');
     return 'CHOOSE_USER';
   },
   CHOOSE_USER: async (client, _arg, originalArg) => {
-    // TODO: register action
     return handleUserToPoke(client, originalArg);
   },
   CHOOSE_MODE: (client, arg) => {
@@ -76,8 +74,8 @@ export const pokeCommand: CommandStateResolver<'poke'> = {
       currentUser,
       context: { pokedUser, messageId }
     } = client.getCurrentState<IPokeContext>();
-    // Escolher poke publico ou anonimo
 
+    // Escolher poke publico ou anonimo
     if (arg !== 'anonymous' && arg !== 'on_the_face') {
       client.sendMessage(
         'Você deve decidir a sua ação acima antes de prosseguir.',
@@ -92,7 +90,11 @@ export const pokeCommand: CommandStateResolver<'poke'> = {
     if (arg === 'anonymous') {
       currentUser.pokes ||= [];
       if (currentUser.pokes.includes(pokedUser._id)) {
-        client.sendMessage('Voce ja deu poke nelu mano'); // TODO: fix this
+        /* eslint-disable max-len */
+        const response = 'Você já deu poke nessa pessoa!\n' +
+          'Se não quiser esperar que ela também dê o /poke em você, que tal enviar outro /poke utilizando, agora, o modo "notificar"? :)';
+        /* eslint-enable max-len */
+        client.sendMessage(response);
         return 'END';
       }
 
@@ -102,30 +104,48 @@ export const pokeCommand: CommandStateResolver<'poke'> = {
         pokes: currentUser.pokes
       });
 
+      client.registerAction('poke_command', {
+        target: pokedUser.username, exists: true, poke_mode: 'await'
+      });
+
       // Checar se aquele usuario ja deu poke em mim, se tiver dado avisar nois dois
       if (pokedUser.pokes?.includes(currentUser._id)) {
-        // TODO: fix these 2 replies
-        const replyToPoker = 'Opa, a pessoa ja tinha te pokeado, vai la falar com elu';
+        // eslint-disable-next-line
+        const replyToPoker = `${pokedUser.username} já tinha te "pokeado"! Ebaaa! Bora conversar :D`;
         client.sendMessage(replyToPoker);
 
-        const replyToPoked = 'Opa, a pessoa te pokeou de volta! Bora papear';
+        const replyToPoked = `${currentUser.username} te "pokeou" de volta! Bora papear :D`;
         client.sendMessage(replyToPoked, undefined, { chatId: pokedUser._id });
       }
       else {
-        // TODO: fix this
-        const reply = 'O @ foi pokeado, se ele te pokear de volta eu venho correndo te avisar :P';
+        const reply = `${pokedUser.username} foi "pokeado" com sucesso!\n` +
+          'Se elu te "pokear" de volta eu venho correndo te avisar ;)';
         client.sendMessage(reply);
       }
     }
     else {
-      // send message to user
+      // eslint-disable-next-line
+      client.sendMessage(`${pokedUser.username} foi notificado de que você quer conversar com elu!`);
+
+      // Send message to poked user
+
+      /* eslint-disable max-len */
+      const messageToPoked = `Voce recebeu um poke de ${currentUser.username}!\n` +
+        'Que tal chamar elu para conversar? :)\n\n' +
+        'Caso não se sinta confortável, você pode dar outro /poke e ver se elu vai te chamar, ao invés.';
+      /* eslint-enable max-len */
+
       client.sendMessage(
-        // TODO: fix this, sugestao: 'chame o @ no pv, ou responde com um poke tbm!'
-        `Voce recebeu um poke na sua cara do ${currentUser.username}`,
+        messageToPoked,
         undefined,
         { chatId: pokedUser._id }
       );
+
+      client.registerAction('poke_command', {
+        target: pokedUser.username, exists: true, poke_mode: 'notify'
+      });
     }
+
     return 'END';
   }
 };
