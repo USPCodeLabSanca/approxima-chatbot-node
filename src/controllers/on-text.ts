@@ -12,7 +12,16 @@ const botName = 'approxima_bot';
 
 const emptyCommandRegex = new RegExp(`^/?(${commands.join('|')})(?:@${botName})? *$`, 'i');
 const commandWithArgRegex = new RegExp(`^/?(${commands.join('|')})(?:@${botName})? +(.*)$`, 'i');
-const cleanMessageRegex = new RegExp(`^/?([^@]*@?)(?:@${botName})? *$`, 'i');
+
+const cleanMessage = (message: string): string => {
+  if (message.startsWith('/')) {
+    message = message.substr(1);
+  }
+  if (message.endsWith(`@${botName}`)) {
+    message = message.substr(0, message.length - `@${botName}`.length);
+  }
+  return message;
+};
 
 export const onText = async (client: ApproximaClient, msg: TelegramBot.Message): Promise<void> => {
   const msgText = msg.text;
@@ -39,7 +48,7 @@ export const onText = async (client: ApproximaClient, msg: TelegramBot.Message):
     console.log(`The following user is not registered: ${client.username}`);
   }
 
-  const cleanMsgText = cleanMessageRegex.exec(msgText)![1];
+  const cleanMsgText = cleanMessage(msgText);
 
   const state = client.getCurrentState();
 
@@ -88,7 +97,7 @@ export const onText = async (client: ApproximaClient, msg: TelegramBot.Message):
   else if (commandWithArgExec) {
     const command = commandWithArgExec[1] as Command;
     const arg = commandWithArgExec[2];
-    runCommand(client, command, arg);
+    runCommand(client, command, cleanMessage(arg));
   }
   else {
     if (!state.currentUser) {

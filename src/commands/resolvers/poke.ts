@@ -5,7 +5,26 @@ import { ApproximaClient } from '../../services/client';
 
 interface IPokeContext {
   pokedUser: IUser;
+  messageId: number;
 }
+
+const handleUserToPoke = async (client: ApproximaClient, username: string) => {
+  const { currentUser, context } = client.getCurrentState<IPokeContext>();
+  if (!username.startsWith('@')) username = '@' + username;
+  if (currentUser.username === username) {
+    client.sendMessage('Se liga, não tem como voce dar poke em voce mesmo'); // TODO: fix this
+    return 'CHOOSE_USER';
+  }
+  const user = await client.db.user.getByUsername(username);
+  if (!user) {
+    client.sendMessage('Esse usuario não existe mano, se liga'); // TODO: fix this
+    return 'CHOOSE_USER';
+  }
+  context.pokedUser = user;
+  const message = await sendChooseModeMessage(client);
+  context.messageId = message.message_id;
+  return 'CHOOSE_MODE';
+};
 
 const sendChooseModeMessage = (client: ApproximaClient) => {
 
@@ -21,16 +40,16 @@ const sendChooseModeMessage = (client: ApproximaClient) => {
     [
       {
         text: 'Notificar',
-        callback_data: 'ON_THE_FACE'
+        callback_data: 'on_the_face'
       },
       {
         text: 'Esperar',
-        callback_data: 'ANONYMOUS'
+        callback_data: 'anonymous'
       }
     ]
   ];
 
-  client.sendMessage(response, {
+  return client.sendMessage(response, {
     reply_markup: {
       inline_keyboard: keyboard
     }
@@ -38,40 +57,28 @@ const sendChooseModeMessage = (client: ApproximaClient) => {
 };
 
 export const pokeCommand: CommandStateResolver<'poke'> = {
-  INITIAL: async (client, arg) => {
-    const { context } = client.getCurrentState<IPokeContext>();
+  INITIAL: async (client, _arg, originalArg) => {
 
     // Se tiver um argumento o usuario ja escolheu alguem para dar poke
-    if (arg) {
-      const user = await client.db.user.getByUsername(arg);
-      if (!user) {
-        client.sendMessage('Esse usuario não existe mano, se liga'); // TODO: fix this
-        return 'CHOOSE_USER';
-      }
-      context.pokedUser = user;
-      sendChooseModeMessage(client);
-      return 'CHOOSE_MODE';
+    if (originalArg) {
+      return handleUserToPoke(client, originalArg);
     }
 
+    client.sendMessage('Legal, me manda o nome de quem voce quer dar poke');
     return 'CHOOSE_USER';
   },
-  CHOOSE_USER: async (client, arg) => {
+  CHOOSE_USER: async (client, _arg, originalArg) => {
     // TODO: register action
-    const { context } = client.getCurrentState<IPokeContext>();
-    const user = await client.db.user.getByUsername(arg);
-    if (!user) {
-      client.sendMessage('Esse usuario não existe mano, se liga'); // TODO: fix this
-      return 'CHOOSE_USER';
-    }
-    context.pokedUser = user;
-    sendChooseModeMessage(client);
-    return 'CHOOSE_MODE';
+    return handleUserToPoke(client, originalArg);
   },
   CHOOSE_MODE: (client, arg) => {
-    const { currentUser, context: { pokedUser } } = client.getCurrentState<IPokeContext>();
+    const {
+      currentUser,
+      context: { pokedUser, messageId }
+    } = client.getCurrentState<IPokeContext>();
     // Escolher poke publico ou anonimo
 
-    if (arg !== 'ANONYMOUS' && arg !== 'ON_THE_FACE') {
+    if (arg !== 'anonymous' && arg !== 'on_the_face') {
       client.sendMessage(
         'Você deve decidir a sua ação acima antes de prosseguir.',
         undefined,
@@ -80,7 +87,9 @@ export const pokeCommand: CommandStateResolver<'poke'> = {
       return 'CHOOSE_MODE';
     }
 
-    if (arg === 'ANONYMOUS') {
+    client.deleteMessage(messageId);
+
+    if (arg === 'anonymous') {
       currentUser.pokes ||= [];
       if (currentUser.pokes.includes(pokedUser._id)) {
         client.sendMessage('Voce ja deu poke nelu mano'); // TODO: fix this
