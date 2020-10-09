@@ -44,14 +44,14 @@ export const editCommand: CommandStateResolver<'edit'> = {
 
     context.messageId = message.message_id;
 
-    return 'CHOOSE_EDIT' as const;
+    return 'SWITCH' as const;
   },
-  CHOOSE_EDIT: async (client, arg) => {
+  SWITCH: async (client, arg) => {
     const { currentUser, context } = client.getCurrentState<IEditContext>();
     const lastMessageId = context.messageId;
 
     if (!lastMessageId) {
-      throw Error('There should be an lastMessageId here in CHOOSE_EDIT state of edit command');
+      throw Error('There should be an lastMessageId here in SWITCH state of edit command');
     }
 
     if (arg === 'name') {
@@ -83,7 +83,7 @@ export const editCommand: CommandStateResolver<'edit'> = {
         selfDestruct: 10000,
       }
     );
-    return 'CHOOSE_EDIT';
+    return 'SWITCH';
   },
   NEW_NAME: (client, arg, originalArg) => {
     if (arg === '.') {

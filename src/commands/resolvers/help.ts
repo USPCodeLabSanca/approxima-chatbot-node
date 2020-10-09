@@ -16,8 +16,9 @@ export const helpCommand: CommandStateResolver<'help'> = (
     '/clear --> Permite que as pessoas que você respondeu com "Agora não" apareçam de novo nos dois comandos acima.\n\n' +
     '/pending --> Mostra uma solicitação de conexão que você possui e ainda não respondeu.\n\n' +
     '/friends --> Mostra o contato de todas as pessoas com que você já se conectou.\n\n' +
-    '/name --> Troca o seu nome.\n\n' +
-    '/desc --> Troca a sua descrição.\n\n' +
+    '/poke --> Permite a você manifestar a sua intenção em conversar com alguém da sua lista de conexões. Existem dois modos, sendo um anônimo.\n\n' +
+    '/edit --> Permite a você trocar seu nome e/ou sua descrição.\n\n' +
+    '/delete --> Permite a você deletar uma conexão ou descadastrar-se da plataforma.\n\n' +
     '/help --> Mostra novamente essa lista. Alternativamente, você pode digitar / e a lista de comandos também aparecerá!\n\n' +
     'Em qualquer momento você pode resetar o estado do bot mandando /reset\n\n' +
     'Caso tenha algum problema ou crítica/sugestão, chama um dos meus desenvolvedores (eles me disseram que não mordem) --> @vitorsanc @Lui_Tombo @arenasoy @Angra018 @OliveiraNelson';

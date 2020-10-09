@@ -9,7 +9,7 @@ export const runCommand = async (
 
   const state = client.getCurrentState();
 
-  if (!state.currentUser && command !== 'start') {
+  if ((!state.currentUser || !state.currentUser.active) && command !== 'start') {
     client.sendMessage('Você precisa se registrar para continuar!');
     return;
   }

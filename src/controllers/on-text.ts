@@ -100,12 +100,12 @@ export const onText = async (client: ApproximaClient, msg: TelegramBot.Message):
     runCommand(client, command, cleanMessage(arg));
   }
   else {
-    if (!state.currentUser) {
+    if (!state.currentUser || !state.currentUser.active) {
       client.sendMessage('Você precisa se registrar para continuar!');
       return;
     }
     // Command not found
-    client.sendMessage(`Comando \`${cleanMsgText}\` não encontrado`, { parse_mode: 'Markdown' });
+    // eslint-disable-next-line
+    client.sendMessage(`Comando \`${cleanMsgText}\` não encontrado!\nUse /help para a lista completa de comandos.`, { parse_mode: 'Markdown' });
   }
-
 };

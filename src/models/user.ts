@@ -11,4 +11,5 @@ export interface IUser {
   pending: number[];
   connections: number[];
   pokes?: number[];
+  active?: boolean;
 }

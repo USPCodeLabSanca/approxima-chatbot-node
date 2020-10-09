@@ -10,17 +10,29 @@ interface IPokeContext {
 
 const handleUserToPoke = async (client: ApproximaClient, username: string) => {
   const { currentUser, context } = client.getCurrentState<IPokeContext>();
-  if (!username.startsWith('@')) username = '@' + username;
+
+  if (!username.startsWith('@')) {
+    /* eslint-disable max-len */
+    const reply = 'Você precisa colocar um "@" antes do username para que funcione!\n' +
+      'Caso o usuário não possua um username com @ no começo, não será possível realizar a remoção.';
+    /* eslint-enable max-len */
+
+    client.sendMessage(reply);
+    return 'CHOOSE_USER';
+  }
+
   if (currentUser.username === username) {
     client.sendMessage('Você não pode dar poke em si mesmo!');
     return 'CHOOSE_USER';
   }
+
   const user = await client.db.user.getByUsername(username);
   if (!user) {
     client.sendMessage('O usuário solicitado não existe :/');
     client.registerAction('poke_command', { target: username, exists: false });
     return 'CHOOSE_USER';
   }
+
   context.pokedUser = user;
   const message = await sendChooseModeMessage(client);
   context.messageId = message.message_id;
@@ -63,7 +75,7 @@ export const pokeCommand: CommandStateResolver<'poke'> = {
     }
 
     // eslint-disable-next-line
-    client.sendMessage('Me manda o username (@) da pessoa com quem você quer conversar :)');
+    client.sendMessage('Me manda o username (@algoaqui) da pessoa com quem você quer conversar :)');
     return 'CHOOSE_USER';
   },
   CHOOSE_USER: async (client, _arg, originalArg) => {
