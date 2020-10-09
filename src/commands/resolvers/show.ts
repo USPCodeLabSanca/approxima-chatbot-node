@@ -20,12 +20,12 @@ export const showCommand: CommandStateResolver<'show'> = {
 
     const { currentUser, context } = client.getCurrentState<IShowContext>();
 
-    // get all users (IDs) from the DB
+    // get all active users (IDs) from the DB
     const allUsers = await client.db.user.getAll();
 
     // Usuarios que podem aparecer para mim, de acordo com os dados do meu perfil
     const allowedUsers = allUsers.filter(otherUser => {
-      return otherUser._id !== client.userId &&
+      return otherUser._id !== currentUser._id &&
         !currentUser.invited.includes(otherUser._id) &&
         !currentUser.rejects.includes(otherUser._id) &&
         !currentUser.pending.includes(otherUser._id) &&

@@ -32,9 +32,9 @@ export class UserController {
     }
   }
 
-  get = async (userId: number): Promise<IUser> => {
+  get = async (userId: number, allowInactive: boolean = false): Promise<IUser> => {
     try {
-      const data = await this.userRepository.get(userId);
+      const data = await this.userRepository.get(userId, allowInactive);
       if (!data) {
         throw new Error('User not found');
       }
@@ -82,12 +82,24 @@ export class UserController {
     }
   }
 
-  edit = async (userId: number, user: Partial<IUser>) => {
+  edit = async (userId: number, user: Partial<IUser>, allowInactive: boolean = false) => {
     try {
-      return await this.userRepository.edit(userId, user);
+      return await this.userRepository.edit(userId, user, allowInactive);
     }
     catch (err) {
       const message = `Error while editing user ${userId}: ${err}`;
+      console.error(message);
+      throw new Error(message);
+    }
+  }
+
+  removeReferencesOf = async (userId: number) => {
+    try {
+      return await this.userRepository.removeReferencesOf(userId);
+    }
+    catch (err) {
+      // eslint-disable-next-line
+      const message = `Error while removing user ${userId} from all users connections and pokes: ${err}`;
       console.error(message);
       throw new Error(message);
     }

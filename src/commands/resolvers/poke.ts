@@ -27,6 +27,7 @@ const handleUserToPoke = async (client: ApproximaClient, username: string) => {
   }
 
   const user = await client.db.user.getByUsername(username);
+
   if (!user) {
     client.sendMessage('O usuário solicitado não existe :/');
     client.registerAction('poke_command', { target: username, exists: false });

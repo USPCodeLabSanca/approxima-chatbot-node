@@ -28,7 +28,14 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
     // Pego o primeiro elemento na "fila"
     const target = currentUser.pending.pop()!;
 
-    const targetData = await client.db.user.get(target);
+    let targetData;
+    try {
+      targetData = await client.db.user.get(target);
+    }
+    catch (err) {
+      client.sendMessage('Erro ao pegar a lista de solicitações. Tente novamente em instantes.');
+      return 'END';
+    }
 
     // Avisa no contexto que essa pessoa foi a ultima a ser exibida para o usuario (ajuda nas callback queries)
     context.lastShownId = target;

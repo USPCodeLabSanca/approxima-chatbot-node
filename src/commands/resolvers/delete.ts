@@ -18,6 +18,7 @@ const deleteConnection = async (client: ApproximaClient, username: string) => {
   }
 
   const targetUser = await client.db.user.getByUsername(username);
+
   if (!targetUser) {
     const response = 'O usuário solicitado não existe :/\n' +
       'Caso queira tentar novamente, utilize o comando /delete de novo.';
@@ -31,7 +32,7 @@ const deleteConnection = async (client: ApproximaClient, username: string) => {
   // Deleto a conexão entre os dois (e registro)
 
   const myNewConnections = currentUser.connections.filter(
-    userId => userId !== targetUser._id
+    userId => userId !== targetUser!._id
   );
   const theirNewConnections = targetUser.connections.filter(
     userId => userId !== currentUser._id
@@ -48,7 +49,7 @@ const deleteConnection = async (client: ApproximaClient, username: string) => {
 
   if (currentUser.pokes) {
     if (currentUser.pokes.includes(targetUser._id)) {
-      const myNewPokes = currentUser.pokes.filter(userId => userId !== targetUser._id);
+      const myNewPokes = currentUser.pokes.filter(userId => userId !== targetUser!._id);
       client.db.user.edit(currentUser._id, {
         pokes: myNewPokes,
       });
@@ -79,7 +80,16 @@ const deleteConnection = async (client: ApproximaClient, username: string) => {
 };
 
 const deleteUser = async (client: ApproximaClient) => {
+  // Me marco como inativo no banco...
   client.db.user.edit(client.userId, { active: false });
+  // ... e me removo de todos os outros documentos que me referenciarem
+  client.db.user.removeReferencesOf(client.userId);
+  client.db.user.edit(client.userId, {
+    rejects: [],
+    invited: [],
+    connections: [],
+    pokes: [],
+  });
 };
 
 export const deleteCommand: CommandStateResolver<'delete'> = {

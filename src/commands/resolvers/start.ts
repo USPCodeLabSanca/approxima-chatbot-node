@@ -17,19 +17,21 @@ export const startCommand: CommandStateResolver<'start'> = {
         const message = 'É muito bom ter você de volta! Bora começar a usar o Approxima :)\n' +
           'Me diz: o que você quer fazer agora?\n\n' +
           'Use /help para uma lista dos comandos disponíveis.\n';
+
         client.sendMessage(message);
         return 'END';
       }
       else {
         client.registerAction('start_command', { new_user: newUser, signin_after_signout: true });
 
+        // Register in database that I'm back
+        // The 3rd argument if to allow me to edit an inactive user
+        client.db.user.edit(client.userId, { active: true }, true);
+
         const message = 'Eu estou muito feliz de ver que você está de volta ao Approxima!!!\n' +
           'Seja muuuuito bem-vinde novamente 💜🧡\n\n' +
           'Para uma lista dos comandos disponíveis, use o /help!\n';
         client.sendMessage(message);
-
-        // Register in database that I'm back
-        client.db.user.edit(client.userId, { active: true });
 
         return 'END';
       }

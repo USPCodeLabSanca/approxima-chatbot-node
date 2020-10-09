@@ -21,10 +21,11 @@ export const randomCommand: CommandStateResolver<'random'> = {
     const currentUser = state.currentUser!;
     const context = state.context;
 
+    // Get all active users (ids) from the DB
     const allUsers = await client.db.user.getAll();
 
     const myAllowedUsers = allUsers.filter(otherUser => {
-      return otherUser._id !== client.userId &&
+      return otherUser._id !== currentUser._id &&
         !currentUser.invited.includes(otherUser._id) &&
         !currentUser.rejects.includes(otherUser._id) &&
         !currentUser.pending.includes(otherUser._id) &&
@@ -34,7 +35,7 @@ export const randomCommand: CommandStateResolver<'random'> = {
     // Preciso, ainda, tirar aqueles que me tem em sua lista de rejects
     const finalAllowedUsers = [];
     for (const user of myAllowedUsers) {
-      if (!user.rejects.includes(user._id)) {
+      if (!user.rejects.includes(client.userId)) {
         finalAllowedUsers.push(user);
       }
     }

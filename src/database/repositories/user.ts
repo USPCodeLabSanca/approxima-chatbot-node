@@ -12,7 +12,7 @@ export class UserRepository {
   }
 
   getAll = async (): Promise<IUser[]> => {
-    return this.usersCollection.find().toArray();
+    return this.usersCollection.find({ active: true }).toArray();
   }
 
   getAllIds = async (): Promise<number[]> => {
@@ -34,16 +34,21 @@ export class UserRepository {
     return allUserIds.map(user => user._id!);
   }
 
-  get = async (userId: number): Promise<IUser | null> => {
-    return this.usersCollection.findOne({ _id: userId });
+  get = async (userId: number, allowInactive: boolean = false): Promise<IUser | null> => {
+    if (allowInactive) {
+      return this.usersCollection.findOne({ _id: userId });
+    }
+    else {
+      return this.usersCollection.findOne({ _id: userId, active: true });
+    }
   }
 
   getByUsername = async (username: string): Promise<IUser | null> => {
-    return this.usersCollection.findOne({ username });
+    return this.usersCollection.findOne({ username, active: true });
   }
 
   getAllFromList = async (userIdList: number[]): Promise<IUser[]> => {
-    const query = { '_id': { '$in': userIdList } };
+    const query = { _id: { $in: userIdList }, active: true };
     return this.usersCollection.find(query).toArray();
   }
 
@@ -56,12 +61,25 @@ export class UserRepository {
     return this.usersCollection.insertOne(newUser);
   }
 
-  edit = async (userId: number, user: Partial<IUser>) => {
-    const userInDb = await this.get(userId);
+  edit = async (userId: number, user: Partial<IUser>, allowInactive: boolean = false) => {
+    const userInDb = await this.get(userId, allowInactive);
     if (!userInDb) {
-      throw new Error('User does not exist');
+      throw new Error('User does not exist or is not active anymore.');
     }
 
     return this.usersCollection.updateOne({ _id: userId }, { $set: user });
+  }
+
+  removeReferencesOf = async (userId: number) => {
+    this.usersCollection.updateMany(
+      {}, // update all documents
+      {
+        $pull: { // remove my id from all sensible arrays if I'm there
+          pending: userId,
+          connections: userId,
+          pokes: userId,
+        }
+      },
+    );
   }
 }

@@ -121,6 +121,9 @@ const friendsPaginator = async (client: ApproximaClient, connections: number[]) 
   let curPageText = '';
 
   let connectionsInfo = await client.db.user.getAllFromList(connections);
+  if (connectionsInfo.length == 0) {
+    throw new Error('Connections info array is empty.');
+  }
 
   connectionsInfo = correctFriendsOrder(connectionsInfo, connections);
 
@@ -168,12 +171,13 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
       const response = 'Você ainda não possui nenhuma conexão!\n' +
         'Que tal usar o comando /show para conhecer alguém novo?';
 
-      await client.sendMessage(response);
+      client.sendMessage(response);
 
       return 'END';
     }
 
-    // Se chegou ate aqui é porque ele tem conexoes
+    // Se chegou ate aqui é porque ele tem conexoes.
+    // Porém, temos que checar se as conexões estão ativas.
 
     const connectionsSet = isProd ?
       // @ts-ignore
@@ -188,7 +192,16 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
     }
     const bottomMsg = 'Utilize esses botões para navegar entre as páginas:\n\n';
 
-    const pagesTextList = await friendsPaginator(client, connectionsSet);
+    let pagesTextList;
+    try {
+      pagesTextList = await friendsPaginator(client, connectionsSet);
+    }
+    catch (err) {
+      const response = 'Erro ao recuperar a sua lista de conexões. Tente novamente em instantes.';
+      client.sendMessage(response);
+      return 'END';
+    }
+
     state.context.pagesText = pagesTextList;
 
     const buttonPairs = makeButtons(0, pagesTextList.length - 1);
@@ -219,10 +232,12 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
   },
   CHOOSE_PAGE: (clients, arg) => {
 
-    const { context } = clients.getCurrentState<IFriendsContext>();
+    const state = clients.getCurrentState<IFriendsContext>();
+
     if (arg === 'close') {
       clients.deleteMessage();
-      // TODO: send message?
+      // Don't delete the message because I already did it here
+      state.endKeyboardCommandOnText = undefined;
       return 'END';
     }
 
@@ -234,17 +249,17 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
       return 'END';
     }
 
-    if (currentPage === context.currentPage) {
+    if (currentPage === state.context.currentPage) {
       return 'CHOOSE_PAGE';
     }
 
-    context.currentPage = currentPage;
+    state.context.currentPage = currentPage;
     const bottom_msg = 'Utilize esses botões para navegar entre as páginas:\n\n';
 
 
-    const buttonPairs = makeButtons(currentPage, context.pagesText.length - 1);
+    const buttonPairs = makeButtons(currentPage, state.context.pagesText.length - 1);
 
-    let response = context.pagesText[currentPage];
+    let response = state.context.pagesText[currentPage];
 
     if (buttonPairs.length != 0) {
       response += bottom_msg;

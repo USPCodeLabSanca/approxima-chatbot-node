@@ -16,7 +16,6 @@ export const runCommand = async (
 
   let stateResolver: StateResolverFunction<Command>;
 
-
   if (state.currentState === 'INITIAL' && typeof commandExecuter[command] === 'function') {
     // @ts-ignore
     stateResolver = await commandExecuter[command];

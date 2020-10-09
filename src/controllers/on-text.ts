@@ -42,10 +42,11 @@ export const onText = async (client: ApproximaClient, msg: TelegramBot.Message):
 
   let user: IUser | undefined;
   try {
-    user = await client.db.user.get(client.userId);
+    user = await client.db.user.get(client.userId, true); // allow inactive user to be get
   }
   catch {
     console.log(`The following user is not registered: ${client.username}`);
+    user = undefined;
   }
 
   const cleanMsgText = cleanMessage(msgText);
@@ -59,10 +60,16 @@ export const onText = async (client: ApproximaClient, msg: TelegramBot.Message):
     } = state.endKeyboardCommandOnText;
 
     if (deleteKeyboard && keyboardId) {
-      await client.deleteMessage(state.endKeyboardCommandOnText.keyboardId);
+      try {
+        await client.deleteMessage(state.endKeyboardCommandOnText.keyboardId);
+      }
+      catch {
+        console.log('Error while deleting keyboard from previous command.');
+      }
     }
 
     client.resetCurrentState();
+    return;
   }
 
   state.currentUser = user as IUser;
