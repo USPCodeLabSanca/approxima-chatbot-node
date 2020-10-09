@@ -121,7 +121,7 @@ export const pokeCommand: CommandStateResolver<'poke'> = {
         target: pokedUser.username, exists: true, poke_mode: 'await'
       });
 
-      // Checar se aquele usuario ja deu poke em mim, se tiver dado avisar nois dois
+      // Checar se aquele usuario ja deu poke em mim. Se tiver dado, avisa nós dois
       if (pokedUser.pokes?.includes(currentUser._id)) {
         // eslint-disable-next-line
         const replyToPoker = `${pokedUser.username} já tinha te "pokeado"! Ebaaa! Bora conversar :D`;
