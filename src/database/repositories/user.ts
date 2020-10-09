@@ -16,8 +16,22 @@ export class UserRepository {
   }
 
   getAllIds = async (): Promise<number[]> => {
-    const allUsersData = await this.usersCollection.find().toArray();
-    return allUsersData.map(user => user._id);
+    const allUserIds: Partial<IUser>[] = await this.usersCollection.find(
+      {
+        active: true
+      },
+      {
+        projection: {
+          _id: 1,
+        }
+      }
+    ).toArray();
+    console.log(allUserIds);
+
+    // allUsersIds is in the format:
+    // [ { _id: xxxxx }, { _id: yyyyy }, { _id: zzzzz } ]
+    // So it's necessary to extract only the _id property from it.
+    return allUserIds.map(user => user._id!);
   }
 
   get = async (userId: number): Promise<IUser | null> => {
