@@ -7,6 +7,7 @@
         "eslint:recommended",
         "google"
     ],
+    "ignorePatterns": "*.js",
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "sourceType": "module"

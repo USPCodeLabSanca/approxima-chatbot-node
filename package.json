@@ -25,7 +25,7 @@
     }
   },
   "engines": {
-    "node": "10.15.3"
+    "node": "12.X"
   },
   "dependencies": {
     "@types/dotenv": "^8.2.0",
