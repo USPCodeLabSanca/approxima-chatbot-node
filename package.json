@@ -11,6 +11,7 @@
     "start": "tsc && node -r dotenv/config dist/index.js",
     "dev": "ts-node-dev -r dotenv/config src/index.ts",
     "prepare": "tsc",
+    "build": "tsc",
     "lint": "eslint src/**/*.ts",
     "lint-fix": "eslint src/**/*.ts --fix",
     "rank": "tsc && node dist/tasks/rank.js",

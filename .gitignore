@@ -85,7 +85,7 @@ typings/
 # DynamoDB Local files
 .dynamodb/
 
-# transpiled javascript
+# # transpiled javascript
 dist
 
 # config files
