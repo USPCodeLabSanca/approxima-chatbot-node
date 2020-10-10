@@ -67,7 +67,7 @@ const makeButtons = (curPage: number, final_page: number) => {
     let index = 1;
     for (const page of [1, 2]) {
       if (page == curPage) {
-        buttonPairs[index] = [`⦗${page + 1} ⦘`, `${page}`];
+        buttonPairs[index] = [`⦗${page + 1}⦘`, `${page}`];
       }
       else {
         buttonPairs[index] = [`${page + 1}`, `${page}`];
@@ -80,7 +80,7 @@ const makeButtons = (curPage: number, final_page: number) => {
     let index = 1;
     for (let page = final_page - 2; page < final_page; page++) {
       if (page == curPage) {
-        buttonPairs[index] = [`⦗${page + 1} ⦘`, `${page}`];
+        buttonPairs[index] = [`⦗${page + 1}⦘`, `${page}`];
       }
       else {
         buttonPairs[index] = [`${page + 1}`, `${page}`];
