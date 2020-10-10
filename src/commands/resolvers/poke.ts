@@ -14,7 +14,8 @@ const handleUserToPoke = async (client: ApproximaClient, username: string) => {
   if (!username.startsWith('@')) {
     /* eslint-disable max-len */
     const reply = 'Você precisa colocar um "@" antes do username para que funcione!\n' +
-      'Caso o usuário não possua um username com @ no começo, não será possível realizar a remoção.';
+      'Caso o usuário não possua um username com @ no começo, não será possível realizar essa ação.\n\n' +
+      'Envie um ponto (.) caso não queira mais prosseguir com o poke.';
     /* eslint-enable max-len */
 
     client.sendMessage(reply);
@@ -30,7 +31,10 @@ const handleUserToPoke = async (client: ApproximaClient, username: string) => {
 
   if (!user) {
     client.sendMessage('O usuário solicitado não existe :/');
-    client.registerAction('poke_command', { target: username, exists: false });
+    client.registerAction('poke_command', {
+      target: username, exists: false
+    });
+
     return 'CHOOSE_USER';
   }
 
@@ -75,11 +79,17 @@ export const pokeCommand: CommandStateResolver<'poke'> = {
       return handleUserToPoke(client, originalArg);
     }
 
-    // eslint-disable-next-line
-    client.sendMessage('Me manda o username (@algoaqui) da pessoa com quem você quer conversar :)');
+    /* eslint-disable max-len */
+    const response = 'Agora, me fale o username (@algoaqui) do usuário para que eu desfaça a conexão!\n' +
+      'Envie um ponto (.) caso tenha desistido.';
+    client.sendMessage(response);
     return 'CHOOSE_USER';
   },
-  CHOOSE_USER: async (client, _arg, originalArg) => {
+  CHOOSE_USER: async (client, arg, originalArg) => {
+    if (arg === '.') {
+      client.sendMessage('Ok! Não vou prosseguir com o poke.');
+      return 'END';
+    }
     return handleUserToPoke(client, originalArg);
   },
   CHOOSE_MODE: (client, arg) => {
