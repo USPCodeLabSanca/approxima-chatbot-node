@@ -181,7 +181,7 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
 
     const connectionsSet = isProd ?
       // @ts-ignore
-      [...new Set(currentUser.connections)] :
+      Array.from(new Set(currentUser.connections)) :
       currentUser.connections;
 
     // Corrige as suas conexoes caso hajam repetições
