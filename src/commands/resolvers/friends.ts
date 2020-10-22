@@ -49,6 +49,35 @@ const makeButtons = (curPage: number, final_page: number) => {
     buttonPairs.push(['« 1 ', '0']);
   }
 
+  // Middle buttons
+
+  if (curPage < 3) {
+    for (const page of [1, 2]) {
+      if (page == curPage) {
+        buttonPairs.push([`⦗${page + 1}⦘`, `${page}`]);
+      }
+      else {
+        buttonPairs.push([`${page + 1}`, `${page}`]);
+      }
+    }
+    buttonPairs.push(['4 ›', '3']);
+  }
+  else if (curPage > final_page - 3) {
+    buttonPairs.push([`‹ ${final_page - 2}`, `${final_page - 3}`]);
+    for (let page = final_page - 2; page < final_page; page++) {
+      if (page == curPage) {
+        buttonPairs.push([`⦗${page + 1}⦘`, `${page}`]);
+      }
+      else {
+        buttonPairs.push([`${page + 1}`, `${page}`]);
+      }
+    }
+  }
+  else {
+    buttonPairs.push([`‹ ${curPage}`, `${curPage - 1}`]);
+    buttonPairs.push([`⦗${curPage + 1}⦘`, `${curPage}`]);
+    buttonPairs.push([`${curPage + 2} ›`, `${curPage + 1}`]);
+  }
 
   // Build the last page button
   if (curPage == final_page) {
@@ -61,39 +90,6 @@ const makeButtons = (curPage: number, final_page: number) => {
     buttonPairs.push([`${final_page + 1} »`, `${final_page}`]);
   }
 
-  // Middle buttons
-
-  if (curPage < 3) {
-    let index = 1;
-    for (const page of [1, 2]) {
-      if (page == curPage) {
-        buttonPairs[index] = [`⦗${page + 1}⦘`, `${page}`];
-      }
-      else {
-        buttonPairs[index] = [`${page + 1}`, `${page}`];
-      }
-      index += 1;
-    }
-    buttonPairs[3] = ['4 ›', '3'];
-  }
-  else if (curPage > final_page - 3) {
-    let index = 1;
-    for (let page = final_page - 2; page < final_page; page++) {
-      if (page == curPage) {
-        buttonPairs[index] = [`⦗${page + 1}⦘`, `${page}`];
-      }
-      else {
-        buttonPairs[index] = [`${page + 1}`, `${page}`];
-      }
-      index += 1;
-    }
-    buttonPairs[1] = [`‹ ${final_page - 2}`, `${final_page - 3}`];
-  }
-  else {
-    buttonPairs[1] = [`‹ ${curPage}`, `${curPage - 1}`];
-    buttonPairs[2] = [`⦗${curPage + 1}⦘`, `${curPage}`];
-    buttonPairs[3] = [`${curPage + 2} ›`, `${curPage + 1}`];
-  }
   return buttonPairs.map(
     (button: any) => ({ text: button[0], callback_data: button[1] })
   );
@@ -121,6 +117,7 @@ const friendsPaginator = async (client: ApproximaClient, connections: number[]) 
   let curPageText = '';
 
   let connectionsInfo = await client.db.user.getAllFromList(connections);
+
   if (connectionsInfo.length == 0) {
     throw new Error('Connections info array is empty.');
   }
@@ -129,6 +126,9 @@ const friendsPaginator = async (client: ApproximaClient, connections: number[]) 
 
   // Adding friends info to the message
   for (const userInfo of connectionsInfo) {
+
+    if (!userInfo) continue;
+
     // Format their info on a string
     let userInfoTxt = `${userInfo['name']}\n` +
       `Clique aqui para conversar --> ${userInfo['username']}\n\n` +
