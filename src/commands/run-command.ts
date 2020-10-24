@@ -10,7 +10,7 @@ export const runCommand = async (
   const state = client.getCurrentState();
 
   if ((!state.currentUser || !state.currentUser.active) && command !== 'start') {
-    client.sendMessage('Você precisa se registrar para continuar!');
+    client.sendMessage('Você precisa se registrar para continuar! Use o /start');
     return;
   }
 
@@ -28,8 +28,7 @@ export const runCommand = async (
   const nextState = await stateResolver(client, cleanString(arg), arg || '');
 
   if (nextState === 'END') {
-    state.currentState = 'INITIAL';
-    state.currentCommand = '';
+    client.resetCurrentState();
     clearTimeout(state.callbackTimeoutId);
     state.callbackTimeoutId = undefined;
   }

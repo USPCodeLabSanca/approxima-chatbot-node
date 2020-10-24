@@ -1,8 +1,8 @@
 
 export const commandsAndStates = {
-  start: ['NAME', 'BIO'],
+  start: ['NAME', 'CHOOSE_PREFS', 'DESC'],
   help: [],
-  clear: [],
+  clear: ['CONCLUSION'],
   edit: ['SWITCH', 'NEW_NAME', 'NEW_DESC'],
   delete: ['SWITCH', 'DEL_FRIEND', 'DEL_MYSELF'],
   show: ['ANSWER'],

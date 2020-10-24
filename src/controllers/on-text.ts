@@ -108,7 +108,7 @@ export const onText = async (client: ApproximaClient, msg: TelegramBot.Message):
   }
   else {
     if (!state.currentUser || !state.currentUser.active) {
-      client.sendMessage('Você precisa se registrar para continuar!');
+      client.sendMessage('Você precisa se registrar para continuar! Use o /start');
       return;
     }
     // Command not found

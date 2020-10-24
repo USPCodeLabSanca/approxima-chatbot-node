@@ -1,8 +1,12 @@
 import { commands, CommandStateResolver } from '../../models/commands';
+import { buildKeyboard, keyboardResponseText, chooseState } from './common/prefs';
 
 interface IStartContext {
-  name?: string,
-  bio?: string,
+  name?: string;
+  desc?: string;
+  interests: string[];
+  subMenu: string;
+  isRegistering: true;
 }
 
 export const startCommand: CommandStateResolver<'start'> = {
@@ -77,26 +81,32 @@ export const startCommand: CommandStateResolver<'start'> = {
 
     const { context } = client.getCurrentState<IStartContext>();
     context.name = arg;
+    context.interests = [];
+    context.isRegistering = true;
 
-    /* eslint-disable max-len */
-    const message = 'Legal! Agora, me conte um pouco mais sobre seus gostos... faça uma pequena descrição de si mesmo.\n' +
-      'Ela será utilizada para apresentar você para os outros usuários do Approxima (não mostrarei o seu nome).\n\n' +
-      'OBS: Você poderá mudar essa descrição depois, mas lembre-se de que somente ela irá aparecer para os outros usuários quando formos te apresentar a eles!';
-    /* eslint-enable max-len */
-    client.sendMessage(message);
-    return 'BIO';
+    const keyboard = buildKeyboard(context);
+    client.sendMessage(keyboardResponseText, {
+      reply_markup: {
+        inline_keyboard: keyboard
+      }
+    });
+
+    return 'CHOOSE_PREFS';
   },
-  BIO: async (client, arg) => {
+  CHOOSE_PREFS: (client, arg, originalArg) =>
+    chooseState(client, arg, originalArg, 'CHOOSE_PREFS', 'DESC') as any,
+  DESC: async (client, arg) => {
     const { context } = client.getCurrentState<IStartContext>();
-    context.bio = arg;
+    context.desc = arg;
 
     await client.db.user.create({
       _id: client.userId,
       chat_id: client.userId,
       username: client.username!,
       name: context.name!,
-      bio: context.bio,
-      interests: [],
+      bio: context.desc,
+      interests: context.interests,
+      active: true,
       invited: [],
       rejects: [],
       pending: [],
@@ -106,10 +116,8 @@ export const startCommand: CommandStateResolver<'start'> = {
     console.log(`New user ${client.username} registered successfully!`);
 
     /* eslint-disable max-len */
-    const response = 'Boa! Agora só falta você adicionar alguns interesses para começar a usar o Approxima!\n' +
-      'Clique (ou toque) aqui --> /prefs\n\n' +
-      'Após finalizada a etapa acima você já poderá começar a usar os meus comandos!\n' +
-      'Caso se sinta perdido em algum momento, lembre-se que existe o comando /help para te ajudar ;)';
+    const response = 'Bem-vinde ao Approxima!!! 🥳\n\n' +
+      'Caso se sinta perdide em algum momento, lembre-se que existe o comando /help para te ajudar ;)';
     /* eslint-enable max-len */
     client.sendMessage(response);
     return 'END' as const;
