@@ -106,11 +106,11 @@ export const startCommand: CommandStateResolver<'start'> = {
       name: context.name!,
       bio: context.desc,
       interests: context.interests,
-      active: true,
       invited: [],
       rejects: [],
       pending: [],
       connections: [],
+      active: true,
     });
 
     console.log(`New user ${client.username} registered successfully!`);
