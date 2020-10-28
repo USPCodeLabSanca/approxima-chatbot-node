@@ -10,9 +10,9 @@ export class UserController {
     this.userRepository = new UserRepository(db);
   }
 
-  getAll = async (): Promise<IUser[]> => {
+  getAll = async (allowInactive = false): Promise<IUser[]> => {
     try {
-      return await this.userRepository.getAll();
+      return await this.userRepository.getAll(allowInactive);
     }
     catch (err) {
       const message = `Error while getting all users: ${err}`;
