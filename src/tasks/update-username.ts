@@ -4,7 +4,7 @@ import { getTimeUnitFromDates } from '../helpers/date';
 import { IUser } from '../models/user';
 import { getTelegramBot } from '../services/telegram-bot';
 
-export const updateUsernames = async () => {
+export const updateAllUsernames = async () => {
 
   const startDate = new Date();
   console.log(`Update dos usernames começou em: ${startDate.toUTCString()}`);
@@ -12,26 +12,14 @@ export const updateUsernames = async () => {
   const userEditPromises: Promise<any>[] = [];
 
   const db = await getDb();
-  const bot = getTelegramBot();
   const userController = new UserController(db);
   const users = await userController.getAll(true);
 
   for (const user of users) {
-    const { user: userInfo } = await bot.getChatMember(user._id, String(user._id));
+    const result = updateUsername(user, userController);
 
-    const telegramUsername = userInfo.username ? '@' + userInfo.username : undefined;
-
-    if (telegramUsername != user.username) {
-      const userUpdate: Partial<IUser> = {
-        username: telegramUsername
-      };
-      if (!userInfo.username) {
-        userUpdate.active = false;
-      }
-      userEditPromises.push(
-        userController.edit(user._id, userUpdate, true)
-      );
-      updates++;
+    if (result) {
+      userEditPromises.push(result.then(() => updates++));
     }
   }
 
@@ -51,4 +39,30 @@ export const updateUsernames = async () => {
     console.log(`Atualizou ${updates} usuarios`);
   }
 
+};
+
+
+export const updateUsername = async (
+  user: IUser,
+  userController: UserController
+): Promise<Partial<IUser> | undefined> => {
+  const bot = getTelegramBot();
+
+  const { user: userInfo } = await bot.getChatMember(user._id, String(user._id));
+
+  const telegramUsername = userInfo.username ? '@' + userInfo.username : undefined;
+
+  if (telegramUsername != user.username) {
+    const userUpdate: Partial<IUser> = {
+      username: telegramUsername,
+      active: user.active
+    };
+    if (!telegramUsername) {
+      userUpdate.active = false;
+    }
+
+    return userController.edit(user._id, userUpdate, true).then(() => userUpdate);
+  }
+
+  return undefined;
 };

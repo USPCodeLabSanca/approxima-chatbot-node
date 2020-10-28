@@ -1,5 +1,6 @@
 import { Db } from 'mongodb';
 import { IUser } from '../../models/user';
+import { updateUsername } from '../../tasks/update-username';
 import { UserRepository } from '../repositories/user';
 
 export class UserController {
@@ -37,6 +38,14 @@ export class UserController {
       const data = await this.userRepository.get(userId, allowInactive);
       if (!data) {
         throw new Error('User not found');
+      }
+      const update = await updateUsername(data, this);
+      if (update) {
+        if (!update.username && !allowInactive) {
+          throw new Error('User deleted it\'s username while using the bot');
+        }
+        data.username = update.username!;
+        data.active = update.active!;
       }
       return data;
     }

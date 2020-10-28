@@ -12,9 +12,9 @@ interface IStartContext {
 export const startCommand: CommandStateResolver<'start'> = {
   INITIAL: async (client) => {
     const { currentUser: user } = client.getCurrentState();
-    let newUser = false;
+    const newUser = !user;
 
-    if (user) {
+    if (!newUser) {
       if (user.active) {
         client.registerAction('start_command', { new_user: newUser, user_without_username: false });
 
@@ -25,11 +25,27 @@ export const startCommand: CommandStateResolver<'start'> = {
         client.sendMessage(message);
         return 'END';
       }
-      else {
+      else { // inactive
+        if (!user.username) {
+          // eslint-disable-next-line
+          client.registerAction('start_command', { new_user: newUser, user_without_username: true });
+
+          const message = 'Parece que você não possui um Nome de Usuário do Telegram ainda :(\n' +
+            'Infelizmente, eu não posso completar o seu registro se você não tiver um, ' +
+            'pois será a única forma dos outros usuários entrarem em contato com você.\n\n' +
+            'Caso queira criar um, basta seguir esses passos (é super simples):\n' +
+            '\t1: Vá na parte de Configurações (Settings) do Telegram;\n' +
+            '\t2: É só preencher o campo Nome de Usuário (Username);\n' +
+            '\t3: Assim que tiver com tudo certinho, me dê o comando /start.\n';
+
+          client.sendMessage(message);
+          return 'END';
+        }
+
         client.registerAction('start_command', { new_user: newUser, signin_after_signout: true });
 
         // Register in database that I'm back
-        // The 3rd argument if to allow me to edit an inactive user
+        // The 3rd argument is to allow me to edit an inactive user
         client.db.user.edit(client.userId, { active: true }, true);
 
         const message = 'Eu estou muito feliz de ver que você está de volta ao Approxima!!!\n' +
@@ -41,10 +57,7 @@ export const startCommand: CommandStateResolver<'start'> = {
       }
     }
 
-    newUser = true;
-
-    if (!client.username) {
-
+    if (!user.username) {
       client.registerAction('start_command', { new_user: newUser, user_without_username: true });
 
       const message = 'Parece que você não possui um Nome de Usuário do Telegram ainda :(\n' +
