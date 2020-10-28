@@ -1,6 +1,8 @@
 import 'source-map-support/register';
 // Init dababase
 import './database/init';
+// Init tasks
+import './services/init-tasks';
 // init telegram bot and controllers
 import './services/init-controllers';
 import { isProd } from './helpers';
