@@ -2,7 +2,7 @@ edit - Edite o seu nome ou a sua descrição!
 prefs - Selecione suas categorias de interesse.
 show - Encontre uma pessoa com interesses em comum.
 random - Encontre uma pessoa aleatória.
-clear - Limpe a sua lista de "rejeitados".
+clear - Limpe a sua lista de "rejeitades".
 pending - Veja as suas solicitações de conexão.
 friends - Veja todas as suas conexões!
 poke - Registre a intenção de conversar com uma conexão.

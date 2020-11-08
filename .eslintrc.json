@@ -23,6 +23,7 @@
         ],
         "semi": ["error", "always"],
 				"no-tabs": 0,
+				"linebreak-style": 0,
         "indent": ["error", "tab", { "VariableDeclarator": 0  }],
         "no-multiple-empty-lines": ["error", { "max": 3, "maxEOF": 0, "maxBOF": 1 }],
         "brace-style": ["error", "stroustrup"],

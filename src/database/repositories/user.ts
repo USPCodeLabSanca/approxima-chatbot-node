@@ -11,7 +11,10 @@ export class UserRepository {
 		this.usersCollection = db.collection(collectionName);
 	}
 
-	getAll = async (): Promise<IUser[]> => {
+	getAll = async (allowInactive: boolean = false): Promise<IUser[]> => {
+		if (allowInactive) {
+			return this.usersCollection.find({}).toArray();
+		}
 		return this.usersCollection.find({ active: true }).toArray();
 	}
 

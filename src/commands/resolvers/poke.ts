@@ -80,7 +80,7 @@ export const pokeCommand: CommandStateResolver<'poke'> = {
 		}
 
 		/* eslint-disable max-len */
-		const response = 'Agora, me fale o username (@algoaqui) do usuário para que eu desfaça a conexão!\n' +
+		const response = 'Agora, me fale o username (@algoaqui) do usuário que você quer "pokear"!\n' +
 			'Envie um ponto (.) caso tenha desistido.';
 		client.sendMessage(response);
 		return 'CHOOSE_USER';

@@ -21,7 +21,7 @@
   "license": "MIT",
   "husky": {
     "hooks": {
-      "pre-commit": "tsc && npm run lint"
+      "pre-commit": "bash scripts/reject-by-pattern.sh && tsc && npm run lint"
     }
   },
   "engines": {
