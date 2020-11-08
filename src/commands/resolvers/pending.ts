@@ -10,122 +10,126 @@ interface IPendingContext {
 }
 
 export const pendingCommand: CommandStateResolver<'pending'> = {
-  INITIAL: async (client, _arg) => {
-    /**
+	INITIAL: async (client, _arg) => {
+		/**
     pending => Mostra todas as solicitações de conexão que aquela pessoa possui e
     para as quais ela ainda não deu uma resposta. Mostra, para cada solicitação,
     a descrição da pessoa e dois botões: conectar ou descartar).
     **/
 
-    client.registerAction('pending_command');
-    const { context, currentUser } = client.getCurrentState<IPendingContext>();
+		const { context, currentUser } = client.getCurrentState<IPendingContext>();
 
-    if (currentUser.pending.length === 0) {
-      client.sendMessage('Você não possui novas solicitações de conexão.');
-      return 'END';
-    }
+		if (currentUser.pending.length === 0) {
+			client.sendMessage('Você não possui novas solicitações de conexão.');
 
-    // Pego o primeiro elemento na "fila"
-    const target = currentUser.pending.pop()!;
+			client.registerAction('pending_command', { no_one_to_show: true });
 
-    let targetData;
-    try {
-      targetData = await client.db.user.get(target);
-    }
-    catch (err) {
-      client.sendMessage('Erro ao pegar a lista de solicitações. Tente novamente em instantes.');
-      return 'END';
-    }
+			return 'END';
+		}
 
-    // Avisa no contexto que essa pessoa foi a ultima a ser exibida para o usuario (ajuda nas callback queries)
-    context.lastShownId = target;
-    context.targetData = targetData;
+		// Pego o primeiro elemento na "fila"
+		const target = currentUser.pending.pop()!;
 
-    const keyboard: InlineKeyboardButton[][] = [[
-      { text: 'Aceitar', callback_data: 'accept' },
-      { text: 'Rejeitar', callback_data: 'reject' }
-    ]];
+		let targetData;
+		try {
+			targetData = await client.db.user.get(target);
+		}
+		catch (err) {
+			client.sendMessage('Erro ao pegar a lista de solicitações. Tente novamente em instantes.');
+			return 'END';
+		}
 
-    const text = 'A seguinte pessoa quer se conectar a você:\n\n' +
+		// Avisa no contexto que essa pessoa foi a ultima a ser exibida para o usuario (ajuda nas callback queries)
+		context.lastShownId = target;
+		context.targetData = targetData;
+
+		const keyboard: InlineKeyboardButton[][] = [[
+			{ text: 'Aceitar', callback_data: 'accept' },
+			{ text: 'Rejeitar', callback_data: 'reject' }
+		]];
+
+		const text = 'A seguinte pessoa quer se conectar a você:\n\n' +
       `"${targetData.bio}"`;
 
-    const message = await client.sendMessage(text, { reply_markup: { inline_keyboard: keyboard } });
-    context.messageId = message.message_id;
+		const message = await client.sendMessage(text, { reply_markup: { inline_keyboard: keyboard } });
+		context.messageId = message.message_id;
 
-    return 'ANSWER';
-  },
-  ANSWER: async (client, arg) => {
-    const { context, currentUser } = client.getCurrentState<IPendingContext>();
-    const targetId = context.lastShownId;
+		client.registerAction('pending_command', { success: true, target });
 
-    if (!targetId) {
-      throw Error('There should be a lastShownId in ANSWER state in pending command');
-    }
+		return 'ANSWER';
+	},
+	ANSWER: async (client, arg) => {
+		const { context, currentUser } = client.getCurrentState<IPendingContext>();
+		const targetId = context.lastShownId;
 
-    delete context.lastShownId;
+		if (!targetId) {
+			throw Error('There should be a lastShownId in ANSWER state in pending command');
+		}
 
-    // Salvo no BD o novo array de 'pending'
-    client.db.user.edit(client.userId, { 'pending': currentUser.pending });
+		delete context.lastShownId;
 
-    // Me retiro da lista de "invited" do outro usuario
-    const targetInvited = context.targetData!.invited;
-    delete context.targetData;
-    removeByValue(targetInvited, client.userId);
+		// Salvo no BD o novo array de 'pending'
+		client.db.user.edit(client.userId, { 'pending': currentUser.pending });
 
-    client.db.user.edit(targetId, { 'invited': targetInvited });
+		// Me retiro da lista de "invited" do outro usuario
+		const targetInvited = context.targetData!.invited;
+		delete context.targetData;
+		removeByValue(targetInvited, client.userId);
 
-    if (arg === 'reject') {
-      client.registerAction('answered_pending', { answer: arg });
-      currentUser.rejects.push(targetId);
+		client.db.user.edit(targetId, { 'invited': targetInvited });
 
-      // Saves in DB
-      client.db.user.edit(client.userId, { 'rejects': currentUser.rejects });
+		if (arg === 'reject') {
+			client.registerAction('answered_pending', { target: targetId, answer: arg });
+			currentUser.rejects.push(targetId);
 
-      await client.sendMessage('Pedido de conexão rejeitado.');
-      client.deleteMessage(context.messageId);
+			// Saves in DB
+			client.db.user.edit(client.userId, { 'rejects': currentUser.rejects });
 
-      return 'END';
-    }
-    else if (arg !== 'accept') {
-      client.sendMessage(
-        'Você deve decidir a sua ação acerca do usuário acima antes de prosseguir.'
-      );
-      return 'ANSWER';
-    }
+			await client.sendMessage('Pedido de conexão rejeitado.');
+			client.deleteMessage(context.messageId);
 
-    // For now on, we know that the answer is "accept"!
-    client.registerAction('answered_pending', { answer: arg });
+			return 'END';
+		}
+		else if (arg !== 'accept') {
+			client.sendMessage(
+				'Você deve decidir a sua ação acerca do usuário acima antes de prosseguir.'
+			);
+			return 'ANSWER';
+		}
 
-    // Register the new connection
-    currentUser.connections.unshift(targetId);
+		// For now on, we know that the answer is "accept"!
+		client.registerAction('answered_pending', { target: targetId, answer: arg });
 
-    // Update my info on BD
-    client.db.user.edit(client.userId, { 'connections': currentUser.connections });
+		// Register the new connection
+		currentUser.connections.unshift(targetId);
 
-    // Update their info on BD
+		// Update my info on BD
+		client.db.user.edit(client.userId, { 'connections': currentUser.connections });
 
-    const targetData = await client.db.user.get(targetId);
+		// Update their info on BD
 
-    targetData.connections.unshift(client.userId);
+		const targetData = await client.db.user.get(targetId);
 
-    client.db.user.edit(targetId, { 'connections': targetData.connections });
+		targetData.connections.unshift(client.userId);
 
-    // Send messages confirming the action
+		client.db.user.edit(targetId, { 'connections': targetData.connections });
 
-    const targetChat = targetData._id;
+		// Send messages confirming the action
 
-    const textTarget = `${currentUser.username} acaba de aceitar seu pedido de conexão! ` +
+		const targetChat = targetData._id;
+
+		const textTarget = `${currentUser.username} acaba de aceitar seu pedido de conexão! ` +
       'Use o comando /friends para checar.';
 
-    await client.sendMessage(textTarget, undefined, { chatId: targetChat });
-    client.deleteMessage(context.messageId);
+		await client.sendMessage(textTarget, undefined, { chatId: targetChat });
+		client.deleteMessage(context.messageId);
 
-    const myText = `Parabéns! Você acaba de se conectar com ${targetData.username}! ` +
+		const myText = `Parabéns! Você acaba de se conectar com ${targetData.username}! ` +
       'Que tal dar um "oi" pra elu? :)\n' +
       'Use o comando /friends para ver a sua nova conexão! Ela estará no final da última página.';
 
-    await client.sendMessage(myText);
+		await client.sendMessage(myText);
 
-    return 'END';
-  }
+		return 'END';
+	}
 };

@@ -10,66 +10,70 @@ interface IRandomContext {
 }
 
 export const randomCommand: CommandStateResolver<'random'> = {
-  INITIAL: async (client, _arg) => {
-    /**
+	INITIAL: async (client, _arg) => {
+		/**
     random => Mostra uma pessoa: any aleatória. Embaixo, um botão para enviar a solicitação
     de conexão deve existir, bem como um botão de "agora não".
     **/
 
-    client.registerAction('random_person_command');
-    const state = client.getCurrentState<IRandomContext>();
-    const currentUser = state.currentUser!;
-    const context = state.context;
+		const state = client.getCurrentState<IRandomContext>();
+		const currentUser = state.currentUser!;
+		const context = state.context;
 
-    // Get all active users (ids) from the DB
-    const allUsers = await client.db.user.getAll();
+		// Get all active users (ids) from the DB
+		const allUsers = await client.db.user.getAll();
 
-    const myAllowedUsers = allUsers.filter(otherUser => {
-      return otherUser._id !== currentUser._id &&
+		const myAllowedUsers = allUsers.filter(otherUser => {
+			return otherUser._id !== currentUser._id &&
         !currentUser.invited.includes(otherUser._id) &&
         !currentUser.rejects.includes(otherUser._id) &&
         !currentUser.pending.includes(otherUser._id) &&
         !currentUser.connections.includes(otherUser._id);
-    });
+		});
 
-    // Preciso, ainda, tirar aqueles que me tem em sua lista de rejects
-    const finalAllowedUsers = [];
-    for (const user of myAllowedUsers) {
-      if (!user.rejects.includes(client.userId)) {
-        finalAllowedUsers.push(user);
-      }
-    }
+		// Preciso, ainda, tirar aqueles que me tem em sua lista de rejects
+		const finalAllowedUsers = [];
+		for (const user of myAllowedUsers) {
+			if (!user.rejects.includes(client.userId)) {
+				finalAllowedUsers.push(user);
+			}
+		}
 
-    if (finalAllowedUsers.length === 0) {
-      client.sendMessage(
-        'Não tenho ninguém novo para te mostrar no momento... que tal tentar amanhã? :)'
-      );
-      return 'END';
-    }
+		if (finalAllowedUsers.length === 0) {
+			client.sendMessage(
+				'Não tenho ninguém novo para te mostrar no momento... que tal tentar amanhã? :)'
+			);
 
-    const target = finalAllowedUsers[randomInt(0, finalAllowedUsers.length)];
-    const targetBio = (await client.db.user.get(target._id)).bio;
+			client.registerAction('random_person_command', { no_one_to_show: true });
 
-    // Avisa no contexto que essa pessoa foi a ultima a ser exibida para o usuario (ajuda nas callback queries)
-    context.lastShownId = target._id;
+			return 'END';
+		}
 
-    // MENSAGEM DO BOT
+		const target = finalAllowedUsers[randomInt(0, finalAllowedUsers.length)];
+		const targetBio = (await client.db.user.get(target._id)).bio;
 
-    const keyboard = [[
-      { text: 'Conectar', callback_data: 'connect' },
-      { text: 'Agora não', callback_data: 'dismiss' }
-    ]];
+		// Avisa no contexto que essa pessoa foi a ultima a ser exibida para o usuario (ajuda nas callback queries)
+		context.lastShownId = target._id;
 
-    const text = `"${targetBio}"`;
+		// MENSAGEM DO BOT
 
-    const message = await client.sendMessage(
-      text, { reply_markup: { inline_keyboard: keyboard } }
-    );
+		const keyboard = [[
+			{ text: 'Conectar', callback_data: 'connect' },
+			{ text: 'Agora não', callback_data: 'dismiss' }
+		]];
 
-    context.messageId = message.message_id;
+		const text = `"${targetBio}"`;
 
-    return 'ANSWER';
-  },
+		const message = await client.sendMessage(
+			text, { reply_markup: { inline_keyboard: keyboard } }
+		);
 
-  ANSWER: answerState
+		context.messageId = message.message_id;
+
+		client.registerAction('random_person_command', { success: true, target: target._id });
+
+		return 'ANSWER';
+	},
+
+	ANSWER: answerState
 };

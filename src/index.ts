@@ -8,19 +8,19 @@ import { isProd } from './helpers';
 // Check if any environmental variable is missing
 
 if (!process.env.BOT_TOKEN) {
-  throw Error('Please set BOT_TOKEN environmental variable!');
+	throw Error('Please set BOT_TOKEN environmental variable!');
 }
 
 if (!process.env.CONNECTION_STRING) {
-  throw Error('Please set CONNECTION_STRING environmental variable!');
+	throw Error('Please set CONNECTION_STRING environmental variable!');
 }
 
 if (!process.env.ADMINS) {
-  throw Error('Please set ADMINS environmental variable!');
+	throw Error('Please set ADMINS environmental variable!');
 }
 
 if (isProd) {
-  if (!process.env.HEROKU_URL) {
-    throw Error('Please set HEROKU_URL environmental variable!');
-  }
+	if (!process.env.HEROKU_URL) {
+		throw Error('Please set HEROKU_URL environmental variable!');
+	}
 }

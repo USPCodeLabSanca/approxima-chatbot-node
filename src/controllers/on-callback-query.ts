@@ -4,22 +4,22 @@ import { msInAMinute } from '../helpers/date';
 import { ApproximaClient } from '../services/client';
 
 export const onCallbackQuery = async (
-  client: ApproximaClient,
-  msg: TelegramBot.CallbackQuery
+	client: ApproximaClient,
+	msg: TelegramBot.CallbackQuery
 ): Promise<void> => {
-  const callBackData = msg.data;
+	const callBackData = msg.data;
 
-  const state = client.getCurrentState();
+	const state = client.getCurrentState();
 
-  client.answerCallbackQuery();
+	client.answerCallbackQuery();
 
-  if (state.currentCommand === '') {
-    return;
-  }
+	if (state.currentCommand === '') {
+		return;
+	}
 
-  client.getCurrentState().callbackTimeoutId = setTimeout(() => {
-    client.resetCurrentState();
-  }, msInAMinute * 1.2) as any;
+	client.getCurrentState().callbackTimeoutId = setTimeout(() => {
+		client.resetCurrentState();
+	}, msInAMinute * 1.2) as any;
 
-  runCommand(client, state.currentCommand, callBackData);
+	runCommand(client, state.currentCommand, callBackData);
 };

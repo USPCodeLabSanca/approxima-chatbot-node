@@ -6,22 +6,22 @@ export interface IStats {
 }
 
 const stateActions = [
-  'start_command',
-  'help_command',
-  'edit_command',
-  'clear_rejects_command',
-  'prefs_command',
-  'prefs_wrong_action',
-  'friends_command',
-  'show_person_command',
-  'answered_suggestion',
-  'answered_pending',
-  'random_person_command',
-  'pending_command',
-  'notify_command',
-  'admin_notified',
-  'poke_command',
-  'delete_command',
+	'start_command',
+	'help_command',
+	'edit_command',
+	'clear_rejects_command',
+	'prefs_command',
+	'prefs_wrong_action',
+	'friends_command',
+	'show_person_command',
+	'answered_suggestion',
+	'answered_pending',
+	'random_person_command',
+	'pending_command',
+	'notify_command',
+	'admin_notified',
+	'poke_command',
+	'delete_command',
 ] as const;
 
 export type StatsActions = typeof stateActions[number];
