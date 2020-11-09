@@ -10,7 +10,7 @@ export const runCommand = async (
 	const state = client.getCurrentState();
 
 	if (!state.currentUser && command !== 'start') {
-		client.sendMessage('Você precisa se registrar para continuar!');
+		client.sendMessage('Você precisa se registrar para continuar! Use o /start');
 		return;
 	}
 	else if (state.currentUser && !state.currentUser.active && command !== 'start') {
@@ -25,7 +25,7 @@ export const runCommand = async (
 			client.sendMessage(message);
 		}
 		else {
-			client.sendMessage('Você precisa se registrar para continuar!');
+			client.sendMessage('Você precisa se registrar para continuar! Use o /start');
 		}
 
 		return;
