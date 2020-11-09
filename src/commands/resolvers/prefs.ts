@@ -24,10 +24,20 @@ export const prefsCommand: CommandStateResolver<'prefs'> = {
 					'Tem certeza de que digitou o username correto?';
 				client.sendMessage(message);
 
-				client.registerAction('common_prefs', {
-					target_username: originalArg,
-					user_not_in_connections: true
-				});
+				if (!user) {
+					client.registerAction('common_prefs', {
+						target_exists: false,
+						target_username: originalArg,
+						user_not_in_connections: true
+					});
+				}
+				else {
+					client.registerAction('common_prefs', {
+						target_exists: true,
+						target_username: user.username,
+						user_not_in_connections: true
+					});
+				}
 
 				return 'END';
 			}
@@ -42,7 +52,8 @@ export const prefsCommand: CommandStateResolver<'prefs'> = {
 				client.sendMessage(replyText);
 
 				client.registerAction('common_prefs', {
-					target_username: originalArg,
+					target: user._id,
+					target_username: user.username,
 					interests_in_common: true
 				});
 			}
@@ -52,7 +63,8 @@ export const prefsCommand: CommandStateResolver<'prefs'> = {
 				client.sendMessage(replyText);
 
 				client.registerAction('common_prefs', {
-					target_username: originalArg,
+					target: user._id,
+					target_username: user.username,
 					interests_in_common: false
 				});
 			}
