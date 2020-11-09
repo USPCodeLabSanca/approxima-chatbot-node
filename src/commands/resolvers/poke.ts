@@ -79,7 +79,6 @@ export const pokeCommand: CommandStateResolver<'poke'> = {
 			return handleUserToPoke(client, originalArg);
 		}
 
-		/* eslint-disable max-len */
 		const response = 'Agora, me fale o username (@algoaqui) do usuário que você quer "pokear"!\n' +
 			'Envie um ponto (.) caso tenha desistido.';
 		client.sendMessage(response);

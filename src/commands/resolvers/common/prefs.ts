@@ -138,9 +138,7 @@ export const chooseState = async (
 	else {
 		let responseText;
 		if (!context.isRegistering) {
-			/* eslint-disable max-len */
 			responseText = 'Por favor, clique em ENVIAR para terminar de atualizar os seus interesses.';
-			/* eslint-enable max-len */
 		}
 		else {
 			responseText = 'Por favor, clique em ENVIAR para terminar de registrar os seus interesses.';

@@ -19,7 +19,12 @@
         "no-unused-vars": "off",
         "@typescript-eslint/no-unused-vars": [
           "error",
-          { "args": "all", "argsIgnorePattern": "^_" }
+          {
+						"args": "all",
+						"argsIgnorePattern": "^_",
+						"vars": "all",
+						"varsIgnorePattern": "^_"
+					}
         ],
         "semi": ["error", "always"],
 				"no-tabs": 0,
@@ -27,7 +32,7 @@
         "indent": ["error", "tab", { "VariableDeclarator": 0  }],
         "no-multiple-empty-lines": ["error", { "max": 3, "maxEOF": 0, "maxBOF": 1 }],
         "brace-style": ["error", "stroustrup"],
-        "max-len": ["error", { "code": 110, "comments": 125 }],
+        "max-len": ["error", { "code": 100, "comments": 120, "tabWidth": 2 }],
         "camelcase": "off",
         "comma-dangle": "off",
         "arrow-parens": "off",

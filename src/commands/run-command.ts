@@ -15,12 +15,10 @@ export const runCommand = async (
 	}
 	else if (state.currentUser && !state.currentUser.active && command !== 'start') {
 		if (!state.currentUser.username) {
-			// eslint-disable max-len
 			const message = 'Você não pode usar o Approxima sem definir um username do Telegram!\n' +
 				'Caso contrário, as outras pessoas não conseguirão conversar com você.\n\n' +
 				'Por favor, defina um username (veja mais instruções no comando /start).\n' +
 				'Caso já tenha definido um, dê o comando /start para voltar ao Approxima!';
-			// eslint-enable max-len
 
 			client.sendMessage(message);
 		}

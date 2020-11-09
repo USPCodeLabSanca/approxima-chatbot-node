@@ -197,7 +197,6 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
 			pagesTextList = await friendsPaginator(client, connectionsSet);
 		}
 		catch (err) {
-			/* eslint-disable-next-line max-len */
 			const response = 'Erro ao recuperar a sua lista de conexões. Tente novamente em instantes.';
 			client.sendMessage(response);
 			return 'END';

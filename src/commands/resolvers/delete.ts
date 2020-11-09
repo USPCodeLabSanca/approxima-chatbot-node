@@ -120,11 +120,11 @@ export const deleteCommand: CommandStateResolver<'delete'> = {
 		}
 
 		if (arg === 'connection') {
-			/* eslint-disable max-len */
+			// eslint-disable-next-line
 			const response = 'Agora, me fale o username (@algoaqui) do usuário para que eu desfaça a conexão!\n' +
         'Envie um ponto (.) caso tenha desistido.';
 			client.sendMessage(response);
-			/* eslint-enable max-len */
+
 			client.deleteMessage(lastMessageId);
 			return 'DEL_FRIEND';
 		}
@@ -194,10 +194,8 @@ export const deleteCommand: CommandStateResolver<'delete'> = {
 		}
 
 		else if (arg === 'cancel') {
-			/* eslint-disable max-len */
 			const response = 'Que bom que você resolveu me dar uma segunda chance!!! 💜🧡\n' +
         'Que tal me dar uns comandos? :)';
-			/* eslint-enable max-len */
 			client.deleteMessage(lastMessageId);
 			client.sendMessage(response);
 			client.registerAction('delete_command', { type: 'myself', confirmed: false });

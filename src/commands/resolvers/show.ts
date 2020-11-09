@@ -4,17 +4,17 @@ import { InlineKeyboardButton } from 'node-telegram-bot-api';
 import { answerState } from './common/answer-state';
 
 interface IShowContext {
-  lastShownId: number | undefined;
-  messageId: number;
+	lastShownId: number | undefined;
+	messageId: number;
 }
 
 export const showCommand: CommandStateResolver<'show'> = {
 	INITIAL: async (client, _arg) => {
 		/**
-    show => Mostra uma pessoa que tem interesses em comum (vai com base no ranking).
-    Embaixo, um botão para enviar a solicitação de conexão deve existir,
-    bem como um botão de "agora não".
-    **/
+		show => Mostra uma pessoa que tem interesses em comum (vai com base no ranking).
+		Embaixo, um botão para enviar a solicitação de conexão deve existir,
+		bem como um botão de "agora não".
+		**/
 
 		const { currentUser, context } = client.getCurrentState<IShowContext>();
 
@@ -24,10 +24,10 @@ export const showCommand: CommandStateResolver<'show'> = {
 		// Usuarios que podem aparecer para mim, de acordo com os dados do meu perfil
 		const allowedUsers = allUsers.filter(otherUser => {
 			return otherUser._id !== currentUser._id &&
-        !currentUser.invited.includes(otherUser._id) &&
-        !currentUser.rejects.includes(otherUser._id) &&
-        !currentUser.pending.includes(otherUser._id) &&
-        !currentUser.connections.includes(otherUser._id);
+				!currentUser.invited.includes(otherUser._id) &&
+				!currentUser.rejects.includes(otherUser._id) &&
+				!currentUser.pending.includes(otherUser._id) &&
+				!currentUser.connections.includes(otherUser._id);
 		});
 
 		if (allowedUsers.length === 0) {

@@ -76,8 +76,7 @@ export const onText = async (client: ApproximaClient, msg: TelegramBot.Message):
 
 	if (cleanMsgText == 'debug') {
 		const states = Object.entries(stateMachine.stateMachine).map(([id, entry]) => {
-			// eslint-disable-next-line
-      const { currentUser, ...rest } = entry;
+			const { currentUser: _currentUser, ...rest } = entry;
 			return { id, ...rest };
 		});
 		console.log(JSON.stringify(states, null, 2));
@@ -113,12 +112,10 @@ export const onText = async (client: ApproximaClient, msg: TelegramBot.Message):
 		}
 		else if (!state.currentUser.active) {
 			if (!state.currentUser.username) {
-				// eslint-disable max-len
 				const message = 'Você não pode usar o Approxima sem definir um username do Telegram!\n' +
 					'Caso contrário, as outras pessoas não conseguirão conversar com você.\n\n' +
 					'Por favor, defina um username (veja mais instruções no comando /start).\n' +
 					'Caso já tenha definido um, dê o comando /start para voltar ao Approxima!';
-				// eslint-enable max-len
 
 				client.sendMessage(message);
 			}
@@ -129,6 +126,6 @@ export const onText = async (client: ApproximaClient, msg: TelegramBot.Message):
 		}
 		// Command not found
 		// eslint-disable-next-line
-    client.sendMessage(`Comando \`${cleanMsgText}\` não encontrado!\nUse /help para a lista completa de comandos.`, { parse_mode: 'Markdown' });
+		client.sendMessage(`Comando \`${cleanMsgText}\` não encontrado!\nUse /help para a lista completa de comandos.`, { parse_mode: 'Markdown' });
 	}
 };
