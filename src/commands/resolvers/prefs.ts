@@ -23,6 +23,12 @@ export const prefsCommand: CommandStateResolver<'prefs'> = {
 				const message = 'Você não possui essa pessoa na sua lista de conexões.\n' +
 					'Tem certeza de que digitou o username correto?';
 				client.sendMessage(message);
+
+				client.registerAction('common_prefs', {
+					target_username: originalArg,
+					user_not_in_connections: true
+				});
+
 				return 'END';
 			}
 
@@ -34,11 +40,21 @@ export const prefsCommand: CommandStateResolver<'prefs'> = {
 				const replyText = `Aqui estão seus interesses em comum\n` +
 					`${getCommomCategoriesNamesById(commomInterests)}`;
 				client.sendMessage(replyText);
+
+				client.registerAction('common_prefs', {
+					target_username: originalArg,
+					interests_in_common: true
+				});
 			}
 			else {
 				const replyText = `Vocês não tem interesses em comum :(\n` +
 					`Você pode atualizar seus interesses com o /prefs)`;
 				client.sendMessage(replyText);
+
+				client.registerAction('common_prefs', {
+					target_username: originalArg,
+					interests_in_common: false
+				});
 			}
 			return 'END';
 		}

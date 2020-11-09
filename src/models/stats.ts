@@ -22,6 +22,7 @@ const stateActions = [
 	'admin_notified',
 	'poke_command',
 	'delete_command',
+	'common_prefs',
 ] as const;
 
 export type StatsActions = typeof stateActions[number];
