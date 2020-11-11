@@ -2,22 +2,29 @@ import { InlineKeyboardButton } from 'node-telegram-bot-api';
 import { removeByValue } from '../../helpers/array';
 import { CommandStateResolver } from '../../models/commands';
 import { IUser } from '../../models/user';
+import { msInASecond } from '../../helpers/date';
 
 interface IPendingContext {
-  lastShownId?: number;
-  targetData?: IUser;
-  messageId: number;
+	lastShownId?: number;
+	targetData?: IUser;
+	messageId: number;
 }
+
+const cancelTime = 5 * msInASecond;
+const cancelMessage = 'Caso queira desfazer, envie-me um ponto (.) em até 5s.';
 
 export const pendingCommand: CommandStateResolver<'pending'> = {
 	INITIAL: async (client, _arg) => {
 		/**
-    pending => Mostra todas as solicitações de conexão que aquela pessoa possui e
-    para as quais ela ainda não deu uma resposta. Mostra, para cada solicitação,
-    a descrição da pessoa e dois botões: conectar ou descartar).
-    **/
+		pending => Mostra todas as solicitações de conexão que aquela pessoa possui e
+		para as quais ela ainda não deu uma resposta. Mostra, para cada solicitação,
+		a descrição da pessoa e dois botões: conectar ou descartar).
+		**/
 
-		const { context, currentUser } = client.getCurrentState<IPendingContext>();
+		const {
+			context,
+			currentUser
+		} = client.getCurrentState<IPendingContext>();
 
 		if (currentUser.pending.length === 0) {
 			client.sendMessage('Você não possui novas solicitações de conexão.');
@@ -49,7 +56,7 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
 		]];
 
 		const text = 'A seguinte pessoa quer se conectar a você:\n\n' +
-      `"${targetData.bio}"`;
+			`"${targetData.bio}"`;
 
 		const message = await client.sendMessage(text, { reply_markup: { inline_keyboard: keyboard } });
 		context.messageId = message.message_id;
@@ -59,7 +66,11 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
 		return 'ANSWER';
 	},
 	ANSWER: async (client, arg) => {
-		const { context, currentUser } = client.getCurrentState<IPendingContext>();
+		const {
+			context,
+			currentUser,
+			persistentContext,
+		} = client.getCurrentState<IPendingContext>();
 		const targetId = context.lastShownId;
 
 		if (!targetId) {
@@ -68,25 +79,35 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
 
 		delete context.lastShownId;
 
-		// Salvo no BD o novo array de 'pending'
-		client.db.user.edit(client.userId, { 'pending': currentUser.pending });
+		function correctPendingAndInvited() {
+			// Salvo no BD o novo array de 'pending'
+			client.db.user.edit(client.userId, { 'pending': currentUser.pending });
 
-		// Me retiro da lista de "invited" do outro usuario
-		const targetInvited = context.targetData!.invited;
-		delete context.targetData;
-		removeByValue(targetInvited, client.userId);
+			// Me retiro da lista de "invited" do outro usuario
+			const targetInvited = context.targetData!.invited;
+			delete context.targetData;
+			removeByValue(targetInvited, client.userId);
 
-		client.db.user.edit(targetId, { 'invited': targetInvited });
+			client.db.user.edit(targetId!, { 'invited': targetInvited });
+		}
 
 		if (arg === 'reject') {
-			client.registerAction('answered_pending', { target: targetId, answer: arg });
-			currentUser.rejects.push(targetId);
 
-			// Saves in DB
-			client.db.user.edit(client.userId, { 'rejects': currentUser.rejects });
+			persistentContext.cancelTimeoutIdOnDot = setTimeout(async () => {
+				correctPendingAndInvited();
 
-			await client.sendMessage('Pedido de conexão rejeitado.');
-			client.deleteMessage(context.messageId);
+				client.registerAction('answered_pending', { target: targetId, answer: arg });
+				currentUser.rejects.push(targetId);
+
+				// Saves in DB
+				client.db.user.edit(client.userId, { 'rejects': currentUser.rejects });
+
+				await client.sendMessage('Pedido de conexão rejeitado.');
+				client.deleteMessage(context.messageId);
+			}, cancelTime);
+
+			const replyText = cancelMessage;
+			client.sendMessage(replyText, undefined, { selfDestruct: cancelTime + msInASecond });
 
 			return 'END';
 		}
@@ -98,37 +119,45 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
 		}
 
 		// For now on, we know that the answer is "accept"!
-		client.registerAction('answered_pending', { target: targetId, answer: arg });
+		persistentContext.cancelTimeoutIdOnDot = setTimeout(async () => {
 
-		// Register the new connection
-		currentUser.connections.unshift(targetId);
+			correctPendingAndInvited();
 
-		// Update my info on BD
-		client.db.user.edit(client.userId, { 'connections': currentUser.connections });
+			client.registerAction('answered_pending', { target: targetId, answer: arg });
 
-		// Update their info on BD
+			// Register the new connection
+			currentUser.connections.unshift(targetId);
 
-		const targetData = await client.db.user.get(targetId);
+			// Update my info on BD
+			client.db.user.edit(client.userId, { 'connections': currentUser.connections });
 
-		targetData.connections.unshift(client.userId);
+			// Update their info on BD
 
-		client.db.user.edit(targetId, { 'connections': targetData.connections });
+			const targetData = await client.db.user.get(targetId);
 
-		// Send messages confirming the action
+			targetData.connections.unshift(client.userId);
 
-		const targetChat = targetData._id;
+			client.db.user.edit(targetId, { 'connections': targetData.connections });
 
-		const textTarget = `${currentUser.username} acaba de aceitar seu pedido de conexão! ` +
-      'Use o comando /friends para checar.';
+			// Send messages confirming the action
 
-		await client.sendMessage(textTarget, undefined, { chatId: targetChat });
-		client.deleteMessage(context.messageId);
+			const targetChat = targetData._id;
 
-		const myText = `Parabéns! Você acaba de se conectar com ${targetData.username}! ` +
-      'Que tal dar um "oi" pra elu? :)\n' +
-      'Use o comando /friends para ver a sua nova conexão! Ela estará no final da última página.';
+			const textTarget = `${currentUser.username} acaba de aceitar seu pedido de conexão! ` +
+				'Use o comando /friends para checar.';
 
-		await client.sendMessage(myText);
+			await client.sendMessage(textTarget, undefined, { chatId: targetChat });
+			client.deleteMessage(context.messageId);
+
+			const myText = `Parabéns! Você acaba de se conectar com ${targetData.username}! ` +
+				'Que tal dar um "oi" pra elu? :)\n' +
+				'Use o comando /friends para ver a sua nova conexão! Ela estará no final da última página.';
+
+			await client.sendMessage(myText);
+		}, cancelTime);
+
+		const replyText = cancelMessage;
+		client.sendMessage(replyText, undefined, { selfDestruct: cancelTime + msInASecond });
 
 		return 'END';
 	}

@@ -127,7 +127,7 @@ export const startCommand: CommandStateResolver<'start'> = {
 			pending: [],
 			connections: [],
 			active: true,
-			updated_at: Date.now()
+			updated_at: new Date()
 		});
 
 		console.log(`New user ${client.username} registered successfully!`);

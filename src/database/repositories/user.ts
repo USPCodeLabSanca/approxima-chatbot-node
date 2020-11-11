@@ -70,7 +70,7 @@ export class UserRepository {
 			throw new Error('User does not exist or is not active anymore.');
 		}
 
-		user['updated_at'] = Date.now();
+		user.updated_at = new Date();
 
 		return this.usersCollection.updateOne({ _id: userId }, { $set: user });
 	}

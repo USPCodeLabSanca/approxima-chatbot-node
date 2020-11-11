@@ -11,6 +11,8 @@ interface ICommandStateMachineUserEntry<T> {
 		deleteKeyboard?: boolean;
 		keyboardId?: number;
 	};
+
+	persistentContext: any;
 }
 
 interface ICommandStateMachine {
@@ -28,7 +30,10 @@ class CommandStateMachine {
 	}
 
 	resetState = (userId: number) => {
-		this.stateMachine[userId] = <ICommandStateMachineUserEntry<any>>{};
+		this.stateMachine[userId] = <ICommandStateMachineUserEntry<any>>{
+			persistentContext: this.stateMachine[userId]?.persistentContext || {}
+		};
+
 		this.stateMachine[userId].context = {};
 		this.stateMachine[userId].currentUser = undefined as any as IUser;
 		this.stateMachine[userId].currentCommand = '';

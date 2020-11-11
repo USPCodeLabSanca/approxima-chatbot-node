@@ -52,10 +52,10 @@ export const showCommand: CommandStateResolver<'show'> = {
 		if (!target) {
 			// Nao ha ninguem com as preferencias do usuario ainda
 			/* eslint-disable max-len */
-			let response = 'Parece que não há ninguém com os mesmos gostos que você no sistema ainda...\n\n';
-			response += 'Você pode tentar:\n';
-			response += '- Marcar mais categorias de interesse\n';
-			response += '- O comando /random (pessoa aleatória)';
+			const response = 'Parece que não há ninguém com os mesmos gostos que você no sistema ainda...\n\n' +
+				'Você pode tentar:\n' +
+				'- Marcar mais categorias de interesse\n' +
+				'- O comando /random (pessoa aleatória)';
 			/* eslint-enable max-len */
 
 			client.sendMessage(response);

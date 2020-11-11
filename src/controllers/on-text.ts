@@ -83,6 +83,12 @@ export const onText = async (client: ApproximaClient, msg: TelegramBot.Message):
 		client.sendMessage('Deu certo! :)\nAgradecemos pela ajuda!!');
 		return;
 	}
+	else if (cleanMsgText === '.' && state.persistentContext.cancelTimeoutIdOnDot) {
+		clearTimeout(state.persistentContext.cancelTimeoutIdOnDot);
+		delete state.persistentContext.cancelTimeoutIdOnDot;
+		client.sendMessage('Ok! Ação desfeita :)');
+		return;
+	}
 
 	if (state.currentUser?.active && cleanMsgText === 'reset') {
 		client.resetCurrentState();
