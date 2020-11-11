@@ -2,7 +2,7 @@ import { CommandStateResolver } from '../../models/commands';
 import { ApproximaClient } from '../../services/client';
 
 interface IDeleteContext {
-  messageId?: number;
+	messageId?: number;
 }
 
 const deleteConnection = async (client: ApproximaClient, username: string) => {
@@ -10,8 +10,8 @@ const deleteConnection = async (client: ApproximaClient, username: string) => {
 
 	if (currentUser.username === username) {
 		const response = 'Você não pode desfazer uma conexão consigo mesmo hahaha\n\n' +
-      'Me mande o username (@algoaqui) do usuário com o qual você quer desfazer a conexão.\n' +
-      'Caso tenha desistido, me envie um ponto (.)';
+			'Me mande o username (@algoaqui) do usuário com o qual você quer desfazer a conexão.\n' +
+			'Caso tenha desistido, me envie um ponto (.)';
 
 		client.sendMessage(response);
 		return 'DEL_FRIEND';
@@ -21,15 +21,31 @@ const deleteConnection = async (client: ApproximaClient, username: string) => {
 
 	if (!targetUser) {
 		const response = 'O usuário solicitado não existe :/\n' +
-      'Caso queira tentar novamente, utilize o comando /delete de novo.';
+			'Caso queira tentar novamente, utilize o comando /delete de novo.';
 
 		client.sendMessage(response);
 		// eslint-disable-next-line
-    client.registerAction('delete_command', { type: 'connection', target: username, user_exists: false });
+		client.registerAction('delete_command', { type: 'connection', target: username, user_exists: false });
 		return 'END';
 	}
 
-	// Deleto a conexão entre os dois (e registro)
+	// Deleto a conexão entre os dois (e registro) se o usuário está
+	// na lista de conexões dessa pessoa
+
+	if (!currentUser.connections.includes(targetUser!._id)) {
+		const response = 'O usuário solicitado não faz parte das suas conexões :/\n';
+		client.sendMessage(response);
+		// eslint-disable-next-line
+		client.registerAction('delete_command', {
+			type: 'connection',
+			target: username,
+			user_exists: true,
+			is_a_connection: false,
+			confirmed: false,
+		});
+
+		return 'END';
+	}
 
 	const myNewConnections = currentUser.connections.filter(
 		userId => userId !== targetUser!._id
@@ -72,7 +88,8 @@ const deleteConnection = async (client: ApproximaClient, username: string) => {
 			type: 'connection',
 			target: username,
 			user_exists: true,
-			confirmed: true
+			is_a_connection: true,
+			confirmed: true,
 		}
 	);
 
@@ -122,7 +139,7 @@ export const deleteCommand: CommandStateResolver<'delete'> = {
 		if (arg === 'connection') {
 			// eslint-disable-next-line
 			const response = 'Agora, me fale o username (@algoaqui) do usuário para que eu desfaça a conexão!\n' +
-        'Envie um ponto (.) caso tenha desistido.';
+				'Envie um ponto (.) caso tenha desistido.';
 			client.sendMessage(response);
 
 			client.deleteMessage(lastMessageId);
@@ -131,14 +148,16 @@ export const deleteCommand: CommandStateResolver<'delete'> = {
 		else if (arg === 'myself') {
 			/* eslint-disable max-len */
 			const response = 'Aaah, sério?!! :(\n' +
-        'Agradeço muuuuito por você ter se disposto a usar o Approxima! 💜🧡\n' +
-        'Lembre-se que as portas sempre estarão abertas para você criar uma conta novamente, seja por mim ou no futuro app!\n\n' +
-        'Por favor, confirme a sua ação abaixo:';
+				'Agradeço muuuuito por você ter se disposto a usar o Approxima! 💜🧡\n' +
+				'Lembre-se que as portas sempre estarão abertas para você criar uma conta novamente, seja por mim ou no futuro app!\n\n' +
+				'Por favor, confirme a sua ação abaixo:';
 			/* eslint-enable max-len */
 
 			const keyboard = [
-				[{ text: 'SIM, CONTINUAR', callback_data: 'confirm' },
-					{ text: 'NÃO, CANCELAR', callback_data: 'cancel' }]
+				[
+					{ text: 'SIM, CONTINUAR', callback_data: 'confirm' },
+					{ text: 'NÃO, CANCELAR', callback_data: 'cancel' }
+				]
 			];
 
 			const message = await client.sendMessage(
@@ -154,7 +173,7 @@ export const deleteCommand: CommandStateResolver<'delete'> = {
 
 		// Else: usuario mandou lixo
 		const response = 'Você deve decidir a sua ação antes de prosseguir.\n\n' +
-      'Não se preocupe! Você não será obrigade a continuar ao escolher uma ação :)';
+			'Não se preocupe! Você não será obrigade a continuar ao escolher uma ação :)';
 
 		client.sendMessage(
 			response,
@@ -182,8 +201,8 @@ export const deleteCommand: CommandStateResolver<'delete'> = {
 			client.deleteMessage(lastMessageId);
 
 			const reply = 'Você foi descadastrado com sucesso! (Triste...)\n' +
-        'Caso queira retomar a sua conta à qualquer momento, simplesmente dê um /start.\n\n' +
-        'Até mais 💜🧡';
+				'Caso queira retomar a sua conta à qualquer momento, simplesmente dê um /start.\n\n' +
+				'Até mais 💜🧡';
 			client.sendMessage(reply);
 
 			deleteUser(client);
@@ -195,7 +214,7 @@ export const deleteCommand: CommandStateResolver<'delete'> = {
 
 		else if (arg === 'cancel') {
 			const response = 'Que bom que você resolveu me dar uma segunda chance!!! 💜🧡\n' +
-        'Que tal me dar uns comandos? :)';
+				'Que tal me dar uns comandos? :)';
 			client.deleteMessage(lastMessageId);
 			client.sendMessage(response);
 			client.registerAction('delete_command', { type: 'myself', confirmed: false });
