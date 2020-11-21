@@ -2,12 +2,13 @@ import { Collection, Db } from 'mongodb';
 import { isProd } from '../../helpers';
 import { IStats } from '../../models/stats';
 
+const { env } = process;
 export class StatsRepository {
 
 	private statsCollection: Collection<IStats>;
 
 	constructor(db: Db) {
-		const collectionName = isProd ? 'production-stats' : 'test-stats';
+		const collectionName = isProd ? env.STATS_PROD_COL! : env.STATS_DEV_COL!;
 		this.statsCollection = db.collection(collectionName);
 	}
 

@@ -15,7 +15,11 @@ const envsToCheck = [
 	'ENCRYPTION_KEY',
 	'HASH_ITERATIONS',
 	'HASH_METHOD',
-	'HASH_DIGEST'
+	'HASH_DIGEST',
+	'USERS_DEV_COL',
+	'USERS_PROD_COL',
+	'STATS_DEV_COL',
+	'STATS_PROD_COL',
 ];
 
 for (const env of envsToCheck) {

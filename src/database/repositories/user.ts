@@ -3,6 +3,7 @@ import { isProd } from '../../helpers';
 import { IUser } from '../../models/user';
 import { decrypt, encrypt } from '../../services/crypto';
 
+const { env } = process;
 
 const encryptUser = (user: Partial<IUser>) => {
 	if (user.name) {
@@ -32,7 +33,7 @@ export class UserRepository {
 	private usersCollection: Collection<IUser>;
 
 	constructor(db: Db) {
-		const collectionName = isProd ? 'production-users' : 'users';
+		const collectionName = isProd ? env.USERS_PROD_COL! : env.USERS_DEV_COL!;
 		this.usersCollection = db.collection(collectionName);
 	}
 
