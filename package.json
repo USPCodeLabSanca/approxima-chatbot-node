@@ -14,7 +14,9 @@
     "build": "tsc",
     "lint": "eslint src/**/*.ts",
     "lint-fix": "eslint src/**/*.ts --fix",
-    "rank": "tsc && node dist/tasks/rank.js",
+		"rank": "tsc && node dist/tasks/rank.js",
+		"encrypt": "tsc && node -r dotenv/config dist/tasks/encrypt.js",
+		"decrypt": "tsc && node -r dotenv/config dist/tasks/decrypt.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "CodeLab",

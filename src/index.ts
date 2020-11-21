@@ -8,21 +8,28 @@ import './services/init-controllers';
 import { isProd } from './helpers';
 
 // Check if any environmental variable is missing
+const envsToCheck = [
+	'BOT_TOKEN',
+	'CONNECTION_STRING',
+	'ADMINS',
+	'ENCRYPTION_KEY',
+	'HASH_ITERATIONS',
+	'HASH_METHOD',
+	'HASH_DIGEST'
+];
 
-if (!process.env.BOT_TOKEN) {
-	throw Error('Please set BOT_TOKEN environmental variable!');
-}
-
-if (!process.env.CONNECTION_STRING) {
-	throw Error('Please set CONNECTION_STRING environmental variable!');
-}
-
-if (!process.env.ADMINS) {
-	throw Error('Please set ADMINS environmental variable!');
+for (const env of envsToCheck) {
+	if (!process.env[env]) {
+		throw Error(`Please set ${env} environmental variable!`);
+	}
 }
 
 if (isProd) {
-	if (!process.env.HEROKU_URL) {
-		throw Error('Please set HEROKU_URL environmental variable!');
+	const prodEnvsToCheck = ['HEROKU_URL'];
+
+	for (const env of prodEnvsToCheck) {
+		if (!process.env[env]) {
+			throw Error(`Please set ${env} environmental variable!`);
+		}
 	}
 }

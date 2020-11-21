@@ -1,6 +1,31 @@
 import { Collection, Db } from 'mongodb';
 import { isProd } from '../../helpers';
 import { IUser } from '../../models/user';
+import { decrypt, encrypt } from '../../services/crypto';
+
+
+const encryptUser = (user: Partial<IUser>) => {
+	if (user.name) {
+		user.name = encrypt(user.name);
+	}
+	if (user.bio) {
+		user.bio = encrypt(user.bio);
+	}
+	if (user.username) {
+		user.username = encrypt(user.username);
+	}
+	return user;
+};
+
+const decryptUser = (user: IUser | null) => {
+	if (!user) return user;
+	return {
+		...user,
+		name: decrypt(user.name),
+		bio: decrypt(user.bio),
+		username: decrypt(user.username)
+	};
+};
 
 export class UserRepository {
 
@@ -15,7 +40,9 @@ export class UserRepository {
 		if (allowInactive) {
 			return this.usersCollection.find({}).toArray();
 		}
-		return this.usersCollection.find({ active: true }).toArray();
+		return this.usersCollection.find({ active: true }).toArray().then(users =>
+			users.map(user => decryptUser(user)!)
+		);
 	}
 
 	getAllIds = async (): Promise<number[]> => {
@@ -39,20 +66,22 @@ export class UserRepository {
 
 	get = async (userId: number, allowInactive: boolean = false): Promise<IUser | null> => {
 		if (allowInactive) {
-			return this.usersCollection.findOne({ _id: userId });
+			return this.usersCollection.findOne({ _id: userId }).then(decryptUser);
 		}
 		else {
-			return this.usersCollection.findOne({ _id: userId, active: true });
+			return this.usersCollection.findOne({ _id: userId, active: true }).then(decryptUser);
 		}
 	}
 
 	getByUsername = async (username: string): Promise<IUser | null> => {
-		return this.usersCollection.findOne({ username, active: true });
+		return this.usersCollection.findOne({ username, active: true }).then(decryptUser);
 	}
 
 	getAllFromList = async (userIdList: number[]): Promise<IUser[]> => {
 		const query = { _id: { $in: userIdList }, active: true };
-		return this.usersCollection.find(query).toArray();
+		return this.usersCollection.find(query).toArray().then(users =>
+			users.map(user => decryptUser(user)!)
+		);
 	}
 
 	create = async (newUser: IUser) => {
@@ -61,7 +90,7 @@ export class UserRepository {
 			throw new Error('User already exists.');
 		}
 
-		return this.usersCollection.insertOne(newUser);
+		return this.usersCollection.insertOne(encryptUser(newUser) as IUser);
 	}
 
 	edit = async (userId: number, user: Partial<IUser>, allowInactive: boolean = false) => {
@@ -72,7 +101,7 @@ export class UserRepository {
 
 		user.updated_at = new Date();
 
-		return this.usersCollection.updateOne({ _id: userId }, { $set: user });
+		return this.usersCollection.updateOne({ _id: userId }, { $set: encryptUser(user) });
 	}
 
 	removeReferencesOf = async (userId: number) => {

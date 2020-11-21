@@ -11,6 +11,7 @@ export const helpCommand: CommandStateResolver<'help'> = (
 	/* eslint-disable max-len */
 	const helpText =
     '/prefs --> Retorna uma lista com todas as categorias de interesse. A partir dela, você poderá adicionar ou remover interesses.\n\n' +
+    '/prefs @arroba_da_conexao --> Lista os interesses em comum que você tem com uma de suas conexões.\n\n' +
     '/show --> Mostra uma pessoa que tem interesses em comum.\n\n' +
     '/random --> Mostra uma pessoa aleatória.\n\n' +
     '/clear --> Permite que as pessoas que você respondeu com "Agora não" apareçam de novo nos dois comandos acima.\n\n' +
