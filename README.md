@@ -1,17 +1,21 @@
 # Approxima Chatbot (Telegram)
 
-Chatbot de Telegram que será desenvolvido como MVP (Minimum Valueable Product) da iniciativa Approxima
+Chatbot de Telegram que será desenvolvido como MVP (Minimum Valueable Product) da iniciativa Approxima, que tem como objetivo conectar estudantes universitáries com interesses em comum.
 
-## Depois de clonar o reposotorio
+## Depois de clonar o repositório
 
-Rode o comando `npm i` para instalar as libs necessárias.
-Copie o `.env.template` e renomeie para `.env`, colocando as variaveis de ambiente corretamente.
+Rode o comando `npm install` para instalar os pacotes necessários.
+Copie o `.env.template` e renomeie para `.env`, colocando as variáveis de ambiente corretamente.
+
+Para rodar no ambiente de testes, utilize `npm run dev` (irá funcionar como o Nodemon, então a toda mudança salva no código o bot irá reiniciar) OU `npm start` (caso faça alguma modificação no código, deverá matar o bot no Ctrl + C e rodar novamente o comando).
 
 ## Lista de comandos (@approxima_bot)
 
-- /start => (Re)inicia o bot. Se a pessoa não estiver cadastrada na base de dados, pede para ela fornecer um nome, uma pequena descrição pessoal e sugere a ela escolher seus primeiros interesses.
+- /start => (Re)inicia o bot. Se a pessoa não estiver cadastrada na base de dados, pede para ela fornecer um nome, seus primeiros interesses e uma pequena descrição pessoal.
 
-- /prefs => Retorna lista de interesses (caixa de seleção). A pessoa pode marcar ou desmarcar o que ela quiser. O que ela marcar aqui será utilizado pelo algoritmo de rankeamento para encontrar as pessoas mais similares à ela. Até o presente momento, não há a intenção de mostrar os interesses marcados por uma pessoa às outras.
+- /prefs => Retorna lista de interesses (caixa de seleção). A pessoa pode marcar ou desmarcar o que ela quiser. O que ela marcar aqui será utilizado pelo algoritmo de rankeamento para encontrar as pessoas mais similares à ela.
+
+- /prefs @username => Mostra os interesses em comum que o usuário tem com uma de suas conexões.
 
 - /show => Mostra a descrição da pessoa mais similar ao usuário, com base nos interesses, e duas opções: "conectar" e "agora não".
 
@@ -25,9 +29,13 @@ Copie o `.env.template` e renomeie para `.env`, colocando as variaveis de ambien
 
 - /friends => Mostra o nome, a descrição e o contato (@ do Telegram) de todas as pessoas com que o usuário já se conectou.
 
-- /name => Troca o nome do usuário.
+- /poke => Permite ao usuário declarar seu interesse em conversar com uma conexão. Esse comando possui dois funcionamentos: no primeiro, o alvo é notificado; no segundo, o poke fica "escondido" e o alvo só irá saber que o recebeu se também der o /poke no usuário remetente. Caso isso aconteça, sabe-se que ambos tem interesse mútuo em conversar, então ambos serão notificados.
 
-- /desc => Troca a descrição do usuário.
+- /delete => Permite ao usuário remover uma conexão da sua lista ou se descadastrar do bot, parando de receber mensagens do mesmo.
+
+- /edit => Permite ao usuário trocar seu nome ou descrição.
+
+- /reset => Reseta o estado do bot (útil para sair de bugs).
 
 - /help => Mostra os comandos disponíveis.
 
@@ -41,7 +49,7 @@ Copie o `.env.template` e renomeie para `.env`, colocando as variaveis de ambien
 - **controllers**
   - Interface entre mundo externo e aplicação
 - **data**
-  - Dados estaticos como as categorias
+  - Dados estaticos, como as categorias
 - **database**
   - **repositories**
     - Lida diretamente com o banco
@@ -49,14 +57,13 @@ Copie o `.env.template` e renomeie para `.env`, colocando as variaveis de ambien
     - Se formos mudar o banco, o resto da aplicação continua funcionando normalmente
   - **controllers**
     - Interface entre o repository do banco e o resto da aplicação
-    - Funções especificas: `editarPreferencias, adicionarNovaConexao`
+    - Funções especificas: `removeReferencesOf, registerAction` etc.
 - **helpers**
   - Pequenas funções gerais para ajudar no projeto
 - **models**
-  - Interfaces que são usadas em mais de um lugar (que tem um export)
-  - Interfaces que vão ser usadas só em um arquivo podem ficar no proprio arquivo
+  - Interfaces que são usadas em mais de um lugar (que tem um export). Interfaces que vão ser usadas só em um arquivo podem ficar no próprio arquivo.
 - **services**
-  - Logica de negocio
+  - Lógicas de negócio
   - Scripts/classes com funções especificas
 - **tasks**
-  - Scripts para teste ou para funções especificas por exemplo: `resetar o banco`
+  - Scripts para teste ou para funções especificas. Por exemplo, uma função para resetar o banco ou dar update nos usernames de todos os usuários.
