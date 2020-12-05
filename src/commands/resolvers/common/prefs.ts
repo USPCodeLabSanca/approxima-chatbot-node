@@ -10,8 +10,7 @@ export interface IPrefsContext {
 }
 
 export const keyboardResponseText = 'Escolha suas categorias de interesse.\n' +
-	'Utilizaremos elas para te recomendar pessoas que tenham gostos parecidos com os seus.\n' +
-	'O que você marcar aqui NÃO SERÁ VISÍVEL para nenhum outro usuário além de você mesmo!\n';
+	'Utilizaremos elas para te recomendar pessoas que tenham gostos parecidos com os seus.';
 
 export const buildKeyboard = (context: IPrefsContext) => {
 	const keyboard: TelegramBot.InlineKeyboardButton[][] = [];
