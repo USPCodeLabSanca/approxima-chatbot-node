@@ -1,6 +1,6 @@
 import { randomInt } from '../../helpers';
 import { CommandStateResolver } from '../../models/commands';
-import { answerState } from './common/answer-state';
+import { answerState, confirmState } from './common/show-random';
 import { IUser } from '../../models/user';
 
 interface IRandomContext {
@@ -75,5 +75,6 @@ export const randomCommand: CommandStateResolver<'random'> = {
 		return 'ANSWER';
 	},
 
-	ANSWER: answerState
+	ANSWER: answerState,
+	CONFIRM: confirmState,
 };

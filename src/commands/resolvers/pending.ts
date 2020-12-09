@@ -8,17 +8,15 @@ interface IPendingContext {
 	lastShownId?: number;
 	targetData?: IUser;
 	messageId: number;
+	decision?: string;
 }
-
-const cancelTime = 5 * msInASecond;
-const cancelMessage = 'Caso queira desfazer, envie-me um ponto (.) em até 5s.';
 
 export const pendingCommand: CommandStateResolver<'pending'> = {
 	INITIAL: async (client, _arg) => {
 		/**
 		pending => Mostra todas as solicitações de conexão que aquela pessoa possui e
 		para as quais ela ainda não deu uma resposta. Mostra, para cada solicitação,
-		a descrição da pessoa e dois botões: conectar ou descartar).
+		a descrição da pessoa e dois botões: 'conectar' ou 'agora não').
 		**/
 
 		const {
@@ -68,16 +66,62 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
 	ANSWER: async (client, arg) => {
 		const {
 			context,
-			currentUser,
-			persistentContext,
 		} = client.getCurrentState<IPendingContext>();
+
 		const targetId = context.lastShownId;
 
 		if (!targetId) {
 			throw Error('There should be a lastShownId in ANSWER state in pending command');
 		}
 
-		delete context.lastShownId;
+		if (arg === 'reject' || arg === 'accept') {
+			context.decision = arg;
+
+			const keyboard: InlineKeyboardButton[][] = [[
+				{ text: 'Confirmar', callback_data: 'confirm' },
+				{ text: 'Cancelar', callback_data: 'cancel' }
+			]];
+
+			const decisionName = arg === 'accept' ? 'ACEITAR' : 'REJEITAR';
+			const replyText = `Sua decisão foi ${decisionName}.\nVocê a confirma?`;
+
+			const message = await client.sendMessage(
+				replyText, {
+					reply_markup: { inline_keyboard: keyboard }
+				}
+			);
+
+			client.deleteMessage(context.messageId);
+
+			context.messageId = message.message_id;
+
+			return 'CONFIRM';
+		}
+
+		const replyText = 'Você deve decidir a sua ação acerca do usuário acima antes de prosseguir.';
+		client.sendMessage(replyText, undefined, { selfDestruct: msInASecond * 3 });
+
+		return 'ANSWER';
+	},
+
+	CONFIRM: async (client, arg) => {
+		const {
+			context,
+			currentUser,
+		} = client.getCurrentState<IPendingContext>();
+
+		const targetId = context.lastShownId;
+		const messageId = context.messageId;
+		const decision = context.decision;
+
+		if (!targetId) {
+			throw Error('There should be a lastShownId in CONFIRM state in pending command');
+		}
+
+		if (!messageId) {
+			throw Error('There should be a messageId in CONFIRM state in pending command');
+		}
+
 
 		function correctPendingAndInvited() {
 			// Salvo no BD o novo array de 'pending'
@@ -91,9 +135,9 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
 			client.db.user.edit(targetId!, { 'invited': targetInvited });
 		}
 
-		if (arg === 'reject') {
 
-			persistentContext.cancelTimeoutIdOnDot = setTimeout(async () => {
+		if (arg === 'confirm') {
+			if (decision === 'reject') {
 				correctPendingAndInvited();
 
 				client.registerAction('answered_pending', { target: targetId, answer: arg });
@@ -103,63 +147,63 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
 				client.db.user.edit(client.userId, { 'rejects': currentUser.rejects });
 
 				await client.sendMessage('Pedido de conexão rejeitado.');
-				client.deleteMessage(context.messageId);
-			}, cancelTime);
+				client.deleteMessage(messageId);
 
-			const replyText = cancelMessage;
-			client.sendMessage(replyText, undefined, { selfDestruct: cancelTime + msInASecond });
+				return 'END';
+			}
+			else if (decision === 'accept') {
+				correctPendingAndInvited();
 
-			return 'END';
-		}
-		else if (arg !== 'accept') {
-			client.sendMessage(
-				'Você deve decidir a sua ação acerca do usuário acima antes de prosseguir.'
-			);
-			return 'ANSWER';
-		}
+				client.registerAction('answered_pending', { target: targetId, answer: arg });
 
-		// For now on, we know that the answer is "accept"!
-		persistentContext.cancelTimeoutIdOnDot = setTimeout(async () => {
+				// Register the new connection
+				currentUser.connections.unshift(targetId);
 
-			correctPendingAndInvited();
+				// Update my info on BD
+				client.db.user.edit(client.userId, { 'connections': currentUser.connections });
 
-			client.registerAction('answered_pending', { target: targetId, answer: arg });
+				// Update their info on BD
 
-			// Register the new connection
-			currentUser.connections.unshift(targetId);
+				const targetData = await client.db.user.get(targetId);
 
-			// Update my info on BD
-			client.db.user.edit(client.userId, { 'connections': currentUser.connections });
+				targetData.connections.unshift(client.userId);
 
-			// Update their info on BD
+				client.db.user.edit(targetId, { 'connections': targetData.connections });
 
-			const targetData = await client.db.user.get(targetId);
+				// Send messages confirming the action
 
-			targetData.connections.unshift(client.userId);
+				const targetChat = targetData._id;
 
-			client.db.user.edit(targetId, { 'connections': targetData.connections });
+				const textTarget = `${currentUser.username} acaba de aceitar seu pedido de conexão! ` +
+					'Use o comando /friends para checar.';
 
-			// Send messages confirming the action
+				await client.sendMessage(textTarget, undefined, { chatId: targetChat });
 
-			const targetChat = targetData._id;
-
-			const textTarget = `${currentUser.username} acaba de aceitar seu pedido de conexão! ` +
-				'Use o comando /friends para checar.';
-
-			await client.sendMessage(textTarget, undefined, { chatId: targetChat });
-			client.deleteMessage(context.messageId);
-
-			const myText = `Parabéns! Você acaba de se conectar com ${targetData.username}! ` +
+				const myText = `Parabéns! Você acaba de se conectar com ${targetData.username}! ` +
 				'Que tal dar um "oi" pra elu? :)\n' +
 				'Use o comando /friends para ver a sua nova conexão! ' +
 				'Ela estará no começo da primeira página.';
 
-			await client.sendMessage(myText);
-		}, cancelTime);
+				await client.sendMessage(myText);
 
-		const replyText = cancelMessage;
-		client.sendMessage(replyText, undefined, { selfDestruct: cancelTime + msInASecond });
+				client.deleteMessage(messageId);
+				return 'END';
+			}
+		}
+		else if (arg === 'cancel') {
+			client.sendMessage('Ok! Ação desfeita :)');
+			client.deleteMessage(messageId);
+			return 'END';
+		}
 
-		return 'END';
+		client.sendMessage(
+			'Você deve se decidir antes de prosseguir.',
+			undefined,
+			{
+				selfDestruct: 3 * msInASecond,
+			}
+		);
+
+		return 'CONFIRM';
 	}
 };

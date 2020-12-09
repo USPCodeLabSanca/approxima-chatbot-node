@@ -1,7 +1,7 @@
 import { CommandStateResolver } from '../../models/commands';
 import { rank } from '../../services/ranker';
 import { InlineKeyboardButton } from 'node-telegram-bot-api';
-import { answerState } from './common/answer-state';
+import { answerState, confirmState } from './common/show-random';
 
 interface IShowContext {
 	lastShownId: number | undefined;
@@ -92,5 +92,6 @@ export const showCommand: CommandStateResolver<'show'> = {
 
 		return 'ANSWER';
 	},
-	ANSWER: answerState
+	ANSWER: answerState,
+	CONFIRM: confirmState,
 };
