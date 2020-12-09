@@ -64,7 +64,8 @@ export class UserController {
 			}
 			return data;
 		}
-		catch {
+		catch (err) {
+			console.error(err);
 			return undefined;
 		}
 	}

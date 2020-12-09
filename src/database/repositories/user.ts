@@ -75,7 +75,11 @@ export class UserRepository {
 	}
 
 	getByUsername = async (username: string): Promise<IUser | null> => {
-		return this.usersCollection.findOne({ username, active: true }).then(decryptUser);
+		const encryptedUsername = await encrypt(username);
+		return this.usersCollection.findOne({
+			username: encryptedUsername,
+			active: true
+		}).then(decryptUser);
 	}
 
 	getAllFromList = async (userIdList: number[]): Promise<IUser[]> => {
