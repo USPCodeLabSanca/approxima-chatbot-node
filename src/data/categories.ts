@@ -382,7 +382,7 @@ export const categories: ICategories = {
 			'Ficção Histórica': {
 				id: 11
 			},
-			'Humor Negro': {
+			'Humor Ácido': {
 				id: 12
 			},
 			'Mistério': {
