@@ -9,3 +9,4 @@ poke - Registre a intenção de conversar com uma conexão.
 delete - Remova uma conexão ou descadastre-se.
 help - Veja os comandos disponíveis.
 reset - Resete o estado do bot.
+profile - Veja suas informações.

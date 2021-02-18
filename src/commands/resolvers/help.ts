@@ -9,7 +9,8 @@ export const helpCommand: CommandStateResolver<'help'> = (
 	client.registerAction('help_command');
 
 	/* eslint-disable max-len */
-	const helpText =
+    const helpText =
+    '/profile --> Mostra as informações do seu perfil.\n\n' +
     '/prefs --> Retorna uma lista com todas as categorias de interesse. A partir dela, você poderá adicionar ou remover interesses.\n\n' +
     '/prefs @arroba_da_conexao --> Lista os interesses em comum que você tem com uma de suas conexões.\n\n' +
     '/show --> Mostra uma pessoa que tem interesses em comum.\n\n' +

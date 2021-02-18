@@ -10,3 +10,4 @@ export { startCommand } from './start';
 export { notifyCommand } from './notify';
 export { pokeCommand } from './poke';
 export { deleteCommand } from './delete';
+export { profileCommand } from './profile';
