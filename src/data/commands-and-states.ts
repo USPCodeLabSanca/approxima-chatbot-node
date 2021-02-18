@@ -11,5 +11,6 @@ export const commandsAndStates = {
 	prefs: ['CHOOSING'],
 	friends: ['CHOOSE_PAGE'],
 	poke: ['CHOOSE_USER', 'CHOOSE_MODE'],
-	notify: ['SEND']
+	notify: ['SEND'],
+	profile: []
 } as const;
