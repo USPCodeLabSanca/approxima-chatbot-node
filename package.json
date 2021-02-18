@@ -14,17 +14,25 @@
     "build": "tsc",
     "lint": "eslint src/**/*.ts",
     "lint-fix": "eslint src/**/*.ts --fix",
-		"rank": "tsc && node dist/tasks/rank.js",
-		"encrypt": "tsc && node -r dotenv/config dist/tasks/encrypt.js",
-		"decrypt": "tsc && node -r dotenv/config dist/tasks/decrypt.js",
+    "rank": "tsc && node dist/tasks/rank.js",
+    "encrypt": "tsc && node -r dotenv/config dist/tasks/encrypt.js",
+    "decrypt": "tsc && node -r dotenv/config dist/tasks/decrypt.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "CodeLab",
   "license": "MIT",
   "husky": {
     "hooks": {
-      "pre-commit": "bash scripts/reject-by-pattern.sh && tsc && npm run lint"
+      "pre-commit": "bash scripts/reject-by-pattern.sh && tsc && lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "prepare-commit-msg": "exec < /dev/tty && git cz --hook || true"
     }
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "git add"
+    ]
   },
   "engines": {
     "node": "12.X"
@@ -52,6 +60,15 @@
     "@typescript-eslint/parser": "^3.10.1",
     "eslint": "^7.8.1",
     "eslint-config-google": "^0.14.0",
-    "husky": "^4.2.5"
+    "husky": "^4.2.5",
+    "lint-staged": "^10.5.3",
+    "@commitlint/cli": "^11.0.0",
+    "@commitlint/config-conventional": "^11.0.0",
+    "commitizen": "^4.2.2"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
