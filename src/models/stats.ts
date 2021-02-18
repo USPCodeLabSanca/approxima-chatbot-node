@@ -23,6 +23,7 @@ const stateActions = [
 	'poke_command',
 	'delete_command',
 	'common_prefs',
+	'profile_command',
 ] as const;
 
 export type StatsActions = typeof stateActions[number];
