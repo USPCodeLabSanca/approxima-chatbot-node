@@ -29,6 +29,8 @@ Para rodar no ambiente de testes, utilize `npm run dev` (irá funcionar como o N
 
 - /friends => Mostra o nome, a descrição e o contato (@ do Telegram) de todas as pessoas com que o usuário já se conectou.
 
+- /friends last => Mostra o nome, a descrição e o contado do amigo mais recente.
+
 - /poke => Permite ao usuário declarar seu interesse em conversar com uma conexão. Esse comando possui dois funcionamentos: no primeiro, o alvo é notificado; no segundo, o poke fica "escondido" e o alvo só irá saber que o recebeu se também der o /poke no usuário remetente. Caso isso aconteça, sabe-se que ambos tem interesse mútuo em conversar, então ambos serão notificados.
 
 - /delete => Permite ao usuário remover uma conexão da sua lista ou se descadastrar do bot, parando de receber mensagens do mesmo.

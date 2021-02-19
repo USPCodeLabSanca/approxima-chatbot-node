@@ -153,10 +153,12 @@ const friendsPaginator = async (client: ApproximaClient, connections: number[]) 
 };
 
 export const friendsCommand: CommandStateResolver<'friends'> = {
-	INITIAL: async (client) => {
+	INITIAL: async (client, arg) => {
 		/*
-		 friends => Mostra o contato (@ do Tele) de todas as pessoas com que o usuário
+		 /friends => Mostra o contato (@ do Tele) de todas as pessoas com que o usuário
 		 já se conectou.
+
+		 /friends last => Ultima amigo adicionado
 		 */
 
 		const beginDate = Date.now();
@@ -166,7 +168,7 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
 
 		state.context.currentPage = 0;
 
-		if (state.currentUser.connections.length === 0) {
+		if (currentUser.connections.length === 0) {
 			// Este usuario ainda nao tem conexoes
 			const response = 'Você ainda não possui nenhuma conexão!\n' +
 				'Que tal usar o comando /show para conhecer alguém novo?';
@@ -190,11 +192,21 @@ export const friendsCommand: CommandStateResolver<'friends'> = {
 			currentUser.connections = connectionsSet;
 			client.db.user.edit(currentUser._id, { connections: currentUser.connections });
 		}
+
+		// Exibição do amigos em lista paginada
 		const bottomMsg = 'Utilize esses botões para navegar entre as páginas:\n\n';
 
+		// Cria paginação da lista de amigos(connectionSet)
 		let pagesTextList;
 		try {
-			pagesTextList = await friendsPaginator(client, connectionsSet);
+			// Selecione apenas o ultimo amigo
+			if (arg == 'last') {
+				pagesTextList = await friendsPaginator(client, [connectionsSet[connectionsSet.length - 1]]);
+			}
+			else {
+				pagesTextList = await friendsPaginator(client, connectionsSet);
+			}
+
 		}
 		catch (err) {
 			const response = 'Erro ao recuperar a sua lista de conexões. Tente novamente em instantes.';
