@@ -9,6 +9,7 @@ import {
 	showCommand,
 	friendsCommand,
 	notifyCommand,
+	advertCommand,
 	startCommand,
 	pokeCommand,
 	deleteCommand,
@@ -28,5 +29,6 @@ export const commandExecuter: CommandExecuter = {
 	friends: friendsCommand,
 	poke: pokeCommand,
 	notify: notifyCommand,
+	advert: advertCommand,
 	profile: profileCommand
 };
