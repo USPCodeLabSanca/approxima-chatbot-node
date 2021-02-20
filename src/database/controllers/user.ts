@@ -56,9 +56,9 @@ export class UserController {
 		}
 	}
 
-	getByUsername = async (username: string): Promise<IUser | undefined> => {
+	getByUsername = async (username: string, active: boolean = true): Promise<IUser | undefined> => {
 		try {
-			const data = await this.userRepository.getByUsername(username);
+			const data = await this.userRepository.getByUsername(username, active);
 			if (!data) {
 				throw new Error('User not found');
 			}

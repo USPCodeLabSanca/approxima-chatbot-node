@@ -12,5 +12,7 @@ export interface IUser {
 	connections: number[];
 	pokes?: number[];
 	active: boolean;
+	blocked: boolean;
+
 	updated_at: Date;
 }
