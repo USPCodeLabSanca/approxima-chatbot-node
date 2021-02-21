@@ -71,14 +71,16 @@ export const buildKeyboard = (context: IPrefsContext) => {
 		);
 	}
 
-	keyboard.push(
-		[{ text: '❰ ENVIAR ❱', callback_data: 'finish' }]
-	);
-
-	if (!context.isRegistering) {
+	if(!subMenu) {
 		keyboard.push(
-			[{ text: '❰ CANCELAR ❱', callback_data: 'cancel' }]
+			[{ text: '❰ ENVIAR ❱', callback_data: 'finish' }]
 		);
+
+		if (!context.isRegistering) {
+			keyboard.push(
+				[{ text: '❰ CANCELAR ❱', callback_data: 'cancel' }]
+			);
+		}
 	}
 
 	return keyboard;
