@@ -81,5 +81,5 @@ export const prefsCommand: CommandStateResolver<'prefs'> = {
 		return 'CHOOSING' as const;
 	},
 	CHOOSING: (client, arg, originalArg) =>
-		chooseState(client, arg, originalArg, 'CHOOSING', 'END') as any;
+		chooseState(client, arg, originalArg, 'CHOOSING', 'END') as any,
 };
