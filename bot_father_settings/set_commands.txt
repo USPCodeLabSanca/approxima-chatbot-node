@@ -8,5 +8,5 @@ friends - Veja todas as suas conexões!
 poke - Registre a intenção de conversar com uma conexão.
 delete - Remova uma conexão ou descadastre-se.
 help - Veja os comandos disponíveis.
-reset - Resete o estado do bot.
+reset - Livre-se de qualquer bug usando este comando.
 profile - Veja suas informações.

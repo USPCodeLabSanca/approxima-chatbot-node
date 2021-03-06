@@ -92,7 +92,8 @@ export const onText = async (client: ApproximaClient, msg: TelegramBot.Message):
 
 	if (state.currentUser?.active && cleanMsgText === 'reset') {
 		client.resetCurrentState();
-		client.sendMessage('Estado resetado com sucesso!');
+		// eslint-disable-next-line max-len
+		client.sendMessage('Estado resetado com sucesso! Fique tranquile, isso não é um descadastramento :)');
 		return;
 	}
 
