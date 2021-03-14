@@ -1,11 +1,11 @@
 import { CommandStateResolver } from '../../models/commands';
 import { rank } from '../../services/ranker';
-import { InlineKeyboardButton } from 'node-telegram-bot-api';
-import { answerState, confirmState } from './common/show-random';
+import { answerState, confirmState, presentState } from './common/show-random';
 
 interface IShowContext {
 	lastShownId: number | undefined;
 	messageId: number;
+	bio: string;
 }
 
 export const showCommand: CommandStateResolver<'show'> = {
@@ -73,25 +73,13 @@ export const showCommand: CommandStateResolver<'show'> = {
 
 		// Avisa no contexto que essa pessoa foi a ultima a ser exibida para o usuario (ajuda nas callback queries)
 		context.lastShownId = target;
-
-		// MENSAGEM DO BOT
-
-		const keyboard: InlineKeyboardButton[][] = [[
-			{ text: 'Conectar', callback_data: 'connect' },
-			{ text: 'Agora não', callback_data: 'dismiss' }
-		]];
-
-		const text = `"${targetBio}"`;
-
-		const message = await client.sendMessage(
-			text, { reply_markup: { inline_keyboard: keyboard } }
-		);
-		context.messageId = message.message_id;
+		context.bio = targetBio;
 
 		client.registerAction('show_person_command', { success: true, target });
 
-		return 'ANSWER';
+		return 'PRESENT';
 	},
+	PRESENT: presentState,
 	ANSWER: answerState,
 	CONFIRM: confirmState,
 };

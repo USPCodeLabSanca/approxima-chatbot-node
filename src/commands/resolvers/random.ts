@@ -1,12 +1,13 @@
 import { randomInt } from '../../helpers';
 import { CommandStateResolver } from '../../models/commands';
-import { answerState, confirmState } from './common/show-random';
+import { answerState, confirmState, presentState } from './common/show-random';
 import { IUser } from '../../models/user';
 
 interface IRandomContext {
   user: IUser;
   lastShownId?: number;
-  messageId: number;
+	messageId: number;
+	bio: string;
 }
 
 export const randomCommand: CommandStateResolver<'random'> = {
@@ -54,27 +55,14 @@ export const randomCommand: CommandStateResolver<'random'> = {
 
 		// Avisa no contexto que essa pessoa foi a ultima a ser exibida para o usuario (ajuda nas callback queries)
 		context.lastShownId = target._id;
-
-		// MENSAGEM DO BOT
-
-		const keyboard = [[
-			{ text: 'Conectar', callback_data: 'connect' },
-			{ text: 'Agora não', callback_data: 'dismiss' }
-		]];
-
-		const text = `"${targetBio}"`;
-
-		const message = await client.sendMessage(
-			text, { reply_markup: { inline_keyboard: keyboard } }
-		);
-
-		context.messageId = message.message_id;
+		context.bio = targetBio;
 
 		client.registerAction('random_person_command', { success: true, target: target._id });
 
-		return 'ANSWER';
+		return 'PRESENT';
 	},
 
+	PRESENT: presentState,
 	ANSWER: answerState,
 	CONFIRM: confirmState,
 };
