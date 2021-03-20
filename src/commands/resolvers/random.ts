@@ -1,6 +1,6 @@
 import { randomInt } from '../../helpers';
 import { CommandStateResolver } from '../../models/commands';
-import { answerState, confirmState, presentState } from './common/show-random';
+import { answerState, confirmState, presentUser } from './common/show-random';
 import { IUser } from '../../models/user';
 
 interface IRandomContext {
@@ -22,7 +22,19 @@ export const randomCommand: CommandStateResolver<'random'> = {
 		const context = state.context;
 
 		// Get all active users (ids) from the DB
-		const allUsers = await client.db.user.getAll();
+		let allUsers;
+
+		try {
+			allUsers = await client.db.user.getAll();
+		}
+		catch (err) {
+			console.error(err);
+			client.sendMessage(
+				'Oops. Parece que houve um erro em nosso servidor. Tente novamente mais tarde. :)'
+			);
+			client.registerAction('random_person_command', { error: err });
+			return 'END';
+		}
 
 		const myAllowedUsers = allUsers.filter(otherUser => {
 			return otherUser._id !== currentUser._id &&
@@ -59,10 +71,9 @@ export const randomCommand: CommandStateResolver<'random'> = {
 
 		client.registerAction('random_person_command', { success: true, target: target._id });
 
-		return 'PRESENT';
+		return await presentUser(client);
 	},
 
-	PRESENT: presentState,
 	ANSWER: answerState,
 	CONFIRM: confirmState,
 };

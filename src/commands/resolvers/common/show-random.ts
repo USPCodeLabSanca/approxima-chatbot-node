@@ -50,7 +50,7 @@ export const answerState = async (
 
 export const confirmState = async (
 	client: ApproximaClient, arg: string
-): Promise<'END' | 'CONFIRM' | 'PRESENT'> => {
+): Promise<'END' | 'CONFIRM' | 'ANSWER'> => {
 
 	const {
 		context,
@@ -110,7 +110,7 @@ export const confirmState = async (
 	}
 	else if (arg === 'cancel') {
 		client.deleteMessage(messageId);
-		return 'PRESENT';
+		return await presentUser(client);
 	}
 
 	client.sendMessage(
@@ -124,7 +124,7 @@ export const confirmState = async (
 	return 'CONFIRM';
 };
 
-export const presentState = async (
+export const presentUser = async (
 	client: ApproximaClient
 ): Promise<'ANSWER'> => {
 
@@ -134,13 +134,9 @@ export const presentState = async (
 
 	const targetBio = context.bio;
 
-	console.log('Estou no PRESENT');
-
 	if (!targetBio) {
 		throw Error('There should be a bio here in PRESENT state of show/random command');
 	}
-
-	console.log(targetBio);
 
 	const keyboard = [[
 		{ text: 'Conectar', callback_data: 'connect' },

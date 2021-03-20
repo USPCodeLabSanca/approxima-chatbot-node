@@ -1,6 +1,6 @@
 import { CommandStateResolver } from '../../models/commands';
 import { rank } from '../../services/ranker';
-import { answerState, confirmState, presentState } from './common/show-random';
+import { answerState, confirmState, presentUser } from './common/show-random';
 
 interface IShowContext {
 	lastShownId: number | undefined;
@@ -19,7 +19,19 @@ export const showCommand: CommandStateResolver<'show'> = {
 		const { currentUser, context } = client.getCurrentState<IShowContext>();
 
 		// get all active users (IDs) from the DB
-		const allUsers = await client.db.user.getAll();
+		let allUsers;
+
+		try {
+			allUsers = await client.db.user.getAll();
+		}
+		catch (err) {
+			console.error(err);
+			client.sendMessage(
+				'Oops. Parece que houve um erro em nosso servidor. Tente novamente mais tarde. :)'
+			);
+			client.registerAction('random_person_command', { error: err });
+			return 'END';
+		}
 
 		// Usuarios que podem aparecer para mim, de acordo com os dados do meu perfil
 		const allowedUsers = allUsers.filter(otherUser => {
@@ -77,9 +89,8 @@ export const showCommand: CommandStateResolver<'show'> = {
 
 		client.registerAction('show_person_command', { success: true, target });
 
-		return 'PRESENT';
+		return await presentUser(client);
 	},
-	PRESENT: presentState,
 	ANSWER: answerState,
 	CONFIRM: confirmState,
 };
