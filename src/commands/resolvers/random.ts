@@ -6,8 +6,8 @@ import { IUser } from '../../models/user';
 interface IRandomContext {
   user: IUser;
   lastShownId?: number;
-	messageId: number;
-	bio: string;
+  messageId: number;
+  bio: string;
 }
 
 export const randomCommand: CommandStateResolver<'random'> = {
