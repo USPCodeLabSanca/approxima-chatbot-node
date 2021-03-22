@@ -50,7 +50,7 @@ export const answerState = async (
 
 export const confirmState = async (
 	client: ApproximaClient, arg: string
-): Promise<'END' | 'CONFIRM' | 'ANSWER'> => {
+): Promise<'END' | 'CONFIRM'> => {
 
 	const {
 		context,
