@@ -12,7 +12,8 @@ import {
 	startCommand,
 	pokeCommand,
 	deleteCommand,
-	profileCommand
+	profileCommand,
+	blockCommand,
 } from './resolvers';
 
 export const commandExecuter: CommandExecuter = {
@@ -28,5 +29,6 @@ export const commandExecuter: CommandExecuter = {
 	friends: friendsCommand,
 	poke: pokeCommand,
 	notify: notifyCommand,
-	profile: profileCommand
+	profile: profileCommand,
+	block: blockCommand,
 };

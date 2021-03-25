@@ -41,6 +41,14 @@ Para rodar no ambiente de testes, utilize `npm run dev` (irá funcionar como o N
 
 - /help => Mostra os comandos disponíveis.
 
+-  ### Admin-Only
+
+- /advert @username => Envia uma advertência para um usuário alvo. Ao receber 3, a conta dele será bloquada 
+
+- /block @username => Bloqueia um usário, impedindo o de usar sua conta ou recria-la.
+
+automaticamente. 
+
 ## Estrutura do projeto
 
 - **commands**

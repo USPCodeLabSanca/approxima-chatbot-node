@@ -24,6 +24,7 @@ const stateActions = [
 	'delete_command',
 	'common_prefs',
 	'profile_command',
+	'block_command',
 ] as const;
 
 export type StatsActions = typeof stateActions[number];

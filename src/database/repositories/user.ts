@@ -74,11 +74,11 @@ export class UserRepository {
 		}
 	}
 
-	getByUsername = async (username: string): Promise<IUser | null> => {
+	getByUsername = async (username: string, active: boolean = true): Promise<IUser | null> => {
 		const encryptedUsername = await encrypt(username);
 		return this.usersCollection.findOne({
 			username: encryptedUsername,
-			active: true
+			active: active
 		}).then(decryptUser);
 	}
 

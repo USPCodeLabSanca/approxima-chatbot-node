@@ -15,7 +15,14 @@ export const startCommand: CommandStateResolver<'start'> = {
 		let newUser = false;
 
 		if (user) {
-			if (user.active) {
+			if (user.blocked) {
+				const message = 'Infelizmente você não está autorizado a usar este serviço\n' +
+								'Boa sorte.\n';
+
+				client.sendMessage(message);
+				return 'END';
+			}
+			else if (user.active) {
 				client.registerAction('start_command', { new_user: newUser });
 
 				const message = 'É muito bom ter você de volta! Bora começar a usar o Approxima :)\n' +
@@ -127,6 +134,7 @@ export const startCommand: CommandStateResolver<'start'> = {
 			pending: [],
 			connections: [],
 			active: true,
+			blocked: false,
 			updated_at: new Date()
 		});
 
