@@ -1,12 +1,13 @@
 import { randomInt } from '../../helpers';
 import { CommandStateResolver } from '../../models/commands';
-import { answerState, confirmState } from './common/show-random';
+import { answerState, confirmState, presentUser } from './common/show-random';
 import { IUser } from '../../models/user';
 
 interface IRandomContext {
   user: IUser;
   lastShownId?: number;
   messageId: number;
+  bio: string;
 }
 
 export const randomCommand: CommandStateResolver<'random'> = {
@@ -21,7 +22,19 @@ export const randomCommand: CommandStateResolver<'random'> = {
 		const context = state.context;
 
 		// Get all active users (ids) from the DB
-		const allUsers = await client.db.user.getAll();
+		let allUsers;
+
+		try {
+			allUsers = await client.db.user.getAll();
+		}
+		catch (err) {
+			console.error(err);
+			client.sendMessage(
+				'Oops. Parece que houve um erro em nosso servidor. Tente novamente mais tarde. :)'
+			);
+			client.registerAction('random_person_command', { error: err });
+			return 'END';
+		}
 
 		const myAllowedUsers = allUsers.filter(otherUser => {
 			return otherUser._id !== currentUser._id &&
@@ -54,25 +67,11 @@ export const randomCommand: CommandStateResolver<'random'> = {
 
 		// Avisa no contexto que essa pessoa foi a ultima a ser exibida para o usuario (ajuda nas callback queries)
 		context.lastShownId = target._id;
-
-		// MENSAGEM DO BOT
-
-		const keyboard = [[
-			{ text: 'Conectar', callback_data: 'connect' },
-			{ text: 'Agora não', callback_data: 'dismiss' }
-		]];
-
-		const text = `"${targetBio}"`;
-
-		const message = await client.sendMessage(
-			text, { reply_markup: { inline_keyboard: keyboard } }
-		);
-
-		context.messageId = message.message_id;
+		context.bio = targetBio;
 
 		client.registerAction('random_person_command', { success: true, target: target._id });
 
-		return 'ANSWER';
+		return await presentUser(client);
 	},
 
 	ANSWER: answerState,

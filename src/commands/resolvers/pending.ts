@@ -181,7 +181,8 @@ export const pendingCommand: CommandStateResolver<'pending'> = {
 
 				const myText = `Parabéns! Você acaba de se conectar com ${targetData.username}! ` +
 				'Que tal dar um "oi" pra elu? :)\n' +
-				'Use o comando /friends para ver a sua nova conexão! ' +
+				'Para conversar, basta clicar no @arroba_da_conexao de uma de suas conexões\n' +
+				'Você também pode usar o comando /friends para ver a sua nova conexão! ' +
 				'Ela estará no começo da primeira página.';
 
 				await client.sendMessage(myText);

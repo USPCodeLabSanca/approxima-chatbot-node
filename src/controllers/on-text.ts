@@ -79,7 +79,8 @@ export const onText = async (client: ApproximaClient, msg: TelegramBot.Message):
 			const { currentUser: _currentUser, ...rest } = entry;
 			return { id, ...rest };
 		});
-		console.log(JSON.stringify(states, null, 2));
+		// console.log(JSON.stringify(states, null, 2));
+		console.log(states);
 		client.sendMessage('Deu certo! :)\nAgradecemos pela ajuda!!');
 		return;
 	}

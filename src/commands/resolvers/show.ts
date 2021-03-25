@@ -1,11 +1,11 @@
 import { CommandStateResolver } from '../../models/commands';
 import { rank } from '../../services/ranker';
-import { InlineKeyboardButton } from 'node-telegram-bot-api';
-import { answerState, confirmState } from './common/show-random';
+import { answerState, confirmState, presentUser } from './common/show-random';
 
 interface IShowContext {
 	lastShownId: number | undefined;
 	messageId: number;
+	bio: string;
 }
 
 export const showCommand: CommandStateResolver<'show'> = {
@@ -19,7 +19,19 @@ export const showCommand: CommandStateResolver<'show'> = {
 		const { currentUser, context } = client.getCurrentState<IShowContext>();
 
 		// get all active users (IDs) from the DB
-		const allUsers = await client.db.user.getAll();
+		let allUsers;
+
+		try {
+			allUsers = await client.db.user.getAll();
+		}
+		catch (err) {
+			console.error(err);
+			client.sendMessage(
+				'Oops. Parece que houve um erro em nosso servidor. Tente novamente mais tarde. :)'
+			);
+			client.registerAction('random_person_command', { error: err });
+			return 'END';
+		}
 
 		// Usuarios que podem aparecer para mim, de acordo com os dados do meu perfil
 		const allowedUsers = allUsers.filter(otherUser => {
@@ -73,24 +85,11 @@ export const showCommand: CommandStateResolver<'show'> = {
 
 		// Avisa no contexto que essa pessoa foi a ultima a ser exibida para o usuario (ajuda nas callback queries)
 		context.lastShownId = target;
-
-		// MENSAGEM DO BOT
-
-		const keyboard: InlineKeyboardButton[][] = [[
-			{ text: 'Conectar', callback_data: 'connect' },
-			{ text: 'Agora não', callback_data: 'dismiss' }
-		]];
-
-		const text = `"${targetBio}"`;
-
-		const message = await client.sendMessage(
-			text, { reply_markup: { inline_keyboard: keyboard } }
-		);
-		context.messageId = message.message_id;
+		context.bio = targetBio;
 
 		client.registerAction('show_person_command', { success: true, target });
 
-		return 'ANSWER';
+		return await presentUser(client);
 	},
 	ANSWER: answerState,
 	CONFIRM: confirmState,

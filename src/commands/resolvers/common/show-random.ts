@@ -109,9 +109,8 @@ export const confirmState = async (
 		}
 	}
 	else if (arg === 'cancel') {
-		client.sendMessage('Ok! Ação desfeita :)');
 		client.deleteMessage(messageId);
-		return 'END';
+		return await presentUser(client);
 	}
 
 	client.sendMessage(
@@ -123,4 +122,34 @@ export const confirmState = async (
 	);
 
 	return 'CONFIRM';
+};
+
+export const presentUser = async (
+	client: ApproximaClient
+): Promise<'ANSWER'> => {
+
+	const {
+		context,
+	} = client.getCurrentState<{ bio?: string, messageId?: number }>();
+
+	const targetBio = context.bio;
+
+	if (!targetBio) {
+		throw Error('There should be a bio here in PRESENT state of show/random command');
+	}
+
+	const keyboard = [[
+		{ text: 'Conectar', callback_data: 'connect' },
+		{ text: 'Agora não', callback_data: 'dismiss' }
+	]];
+
+	const text = `"${targetBio}"`;
+
+	const message = await client.sendMessage(
+		text, { reply_markup: { inline_keyboard: keyboard } }
+	);
+
+	context.messageId = message.message_id;
+
+	return 'ANSWER';
 };
