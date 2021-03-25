@@ -9,10 +9,12 @@ export const runCommand = async (
 
 	const state = client.getCurrentState();
 
+	// O usuario não cadastrado
 	if (!state.currentUser && command !== 'start') {
 		client.sendMessage('Você precisa se registrar para continuar! Use o /start');
 		return;
 	}
+	// O usuario não está ativo, o primeiro comando deve ser "start"
 	else if (state.currentUser && !state.currentUser.active && command !== 'start') {
 		if (!state.currentUser.username) {
 			const message = 'Você não pode usar o Approxima sem definir um username do Telegram!\n' +
